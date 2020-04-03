@@ -1,0 +1,31 @@
+<idea-plugin>
+    <id>cn.j-tools.jenkins-plugin</id>
+    <name>Jenkins-Tools</name>
+    <vendor email="732007737@qq.com" url="http://j-tools.cn">j-tools</vendor>
+
+    <description><![CDATA[
+        <li>
+            Build Job for server of jenkins. so easy ！
+        </li>
+        <li>
+            一键构建Jenkins任务，简单，快速。
+        </li>
+    ]]></description>
+    <!-- please see http://www.jetbrains.org/intellij/sdk/docs/basics/getting_started/plugin_compatibility.html
+         on how to target different products -->
+    <depends>com.intellij.modules.platform</depends>
+
+    <extensions defaultExtensionNs="com.intellij">
+        <!-- Add your extensions here -->
+        <toolWindow id="Jenkins" anchor="left" secondary="false" icon="/image/jenkins_icon.png"
+                    factoryClass="com.jenkins.JenkinsToolFactory"/>
+        <projectConfigurable instance="com.jenkins.windows.SettingWindow"/>
+    </extensions>
+
+    <actions>
+        <!-- Add your actions here -->
+        <action id="jenkins.open" class="com.jenkins.JenkinsBuildAction" text="BuildJenkins">
+            <add-to-group group-id="ToolsBasicGroup" anchor="first"/>
+        </action>
+    </actions>
+</idea-plugin>

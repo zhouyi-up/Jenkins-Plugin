@@ -1,0 +1,39 @@
+plugins {
+    id 'java'
+    id 'org.jetbrains.intellij' version '0.4.15'
+}
+
+group 'cn.j-tools'
+version '1.0.21'
+
+sourceCompatibility = 1.8
+
+repositories {
+    maven {
+        url 'http://maven.aliyun.com/nexus/content/groups/public/'
+    }
+    mavenLocal()
+}
+
+dependencies {
+    compile group: 'org.apache.httpcomponents', name: 'httpclient', version: '4.5.10'
+    compile group: 'commons-io', name: 'commons-io', version: '2.6'
+    compile group: 'com.offbytwo.jenkins', name: 'jenkins-client', version: '0.3.8'
+    compile group: 'org.apache.commons', name: 'commons-lang3', version: '3.9'
+    compile group: 'com.fasterxml.jackson.core', name: 'jackson-databind', version: '2.10.1'
+    compile group: 'com.fasterxml.jackson.core', name: 'jackson-core', version: '2.10.1'
+
+}
+
+// See https://github.com/JetBrains/gradle-intellij-plugin/
+intellij {
+    version '2019.3.1'
+}
+patchPluginXml {
+    changeNotes """This Plugin is build for Java8. The provide get all job for jenkins server of custom ."""
+}
+
+publishPlugin {
+    token intellijPublishToken
+//    channels 'EAP'
+}
