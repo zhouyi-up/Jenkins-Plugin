@@ -1,0 +1,2 @@
+# jenkins-plugin
+init
