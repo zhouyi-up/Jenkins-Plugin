@@ -7,9 +7,6 @@
         <li>
             Build Job for server of jenkins. so easy ！
         </li>
-        <li>
-            一键构建Jenkins任务，简单，快速。
-        </li>
     ]]></description>
     <!-- please see http://www.jetbrains.org/intellij/sdk/docs/basics/getting_started/plugin_compatibility.html
          on how to target different products -->
@@ -24,8 +21,8 @@
 
     <actions>
         <!-- Add your actions here -->
-        <action id="jenkins.open" class="com.jenkins.JenkinsBuildAction" text="BuildJenkins">
-            <add-to-group group-id="ToolsBasicGroup" anchor="first"/>
-        </action>
+<!--        <action id="jenkins.open" class="com.jenkins.JenkinsBuildAction" text="BuildJenkins">-->
+<!--            <add-to-group group-id="ToolsBasicGroup" anchor="first"/>-->
+<!--        </action>-->
     </actions>
 </idea-plugin>

@@ -31,10 +31,16 @@ intellij {
     version '2020.1'
 }
 patchPluginXml {
-    changeNotes """This Plugin is build for Java8. The provide get all job for jenkins server of custom ."""
+    changeNotes """
+    <ol>
+        <li>Support build for 2020.1 </li>
+        <li>Fix Bugs</li>
+        <li>New UI</li>
+    </ol>
+    """
 }
 
 publishPlugin {
-    token intellijPublishToken
+    token System.getenv("IDEA_TOKEN")
 //    channels 'EAP'
 }
