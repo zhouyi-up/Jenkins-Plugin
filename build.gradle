@@ -1,6 +1,6 @@
 plugins {
     id 'java'
-    id 'org.jetbrains.intellij' version '0.4.15'
+    id 'org.jetbrains.intellij' version '0.4.18'
 }
 
 group 'cn.j-tools'
@@ -11,6 +11,7 @@ sourceCompatibility = 1.8
 repositories {
     maven {
         url 'http://maven.aliyun.com/nexus/content/groups/public/'
+//        url 'https://www.jitpack.io'
     }
     mavenLocal()
 }
@@ -27,7 +28,7 @@ dependencies {
 
 // See https://github.com/JetBrains/gradle-intellij-plugin/
 intellij {
-    version '2019.3.1'
+    version '2020.1'
 }
 patchPluginXml {
     changeNotes """This Plugin is build for Java8. The provide get all job for jenkins server of custom ."""
