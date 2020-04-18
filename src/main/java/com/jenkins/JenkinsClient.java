@@ -43,8 +43,7 @@ public class JenkinsClient {
 
     private CloseableHttpClient httpClient;
 
-    public Crumb getCrumb(){
-        CloseableHttpClient httpClient = buildHttpClient();
+    public Crumb getCrumb(CloseableHttpClient httpClient){
         String url =  jenkinsHost + "crumbIssuer/api/json";
 
         HttpGet httpGet = new HttpGet(url);
@@ -79,7 +78,7 @@ public class JenkinsClient {
         HttpPost httpPost = new HttpPost(url);
         httpPost.addHeader("Authorization",auth());
 
-        Crumb crumb = getCrumb();
+        Crumb crumb = getCrumb(httpClient);
         httpPost.addHeader(crumb.getCrumbRequestField(),crumb.getCrumb());
         try {
             CloseableHttpResponse response = httpClient.execute(httpPost);
@@ -107,12 +106,14 @@ public class JenkinsClient {
     public JenkinsResponse buildParam(BuildParam buildParam){
         CloseableHttpClient httpClient = buildHttpClient();
 
+        Crumb crumb = getCrumb(httpClient);
+
         String url = jenkinsHost+"/job/"+buildParam.getJobName()+"/buildWithParameters";
         HttpPost httpPost = new HttpPost(url);
         httpPost.addHeader("Authorization",auth());
-//        httpPost.addHeader("Content-type","application/x-www-form-urlencoded");
-
-        Crumb crumb = getCrumb();
+        httpPost.addHeader("Content-type","multipart/form-data");
+        httpPost.addHeader("Accept","*/*");
+        httpPost.addHeader("Connection","keep-alive");
         httpPost.addHeader(crumb.getCrumbRequestField(),crumb.getCrumb());
         try {
             if (!buildParam.getParam().isEmpty()){
@@ -152,7 +153,7 @@ public class JenkinsClient {
         HttpGet httpGet = new HttpGet(url);
         httpGet.addHeader("Authorization",auth());
 
-        Crumb crumb = getCrumb();
+        Crumb crumb = getCrumb(httpClient);
         httpGet.addHeader(crumb.getCrumbRequestField(),crumb.getCrumb());
 
         try {
@@ -196,7 +197,7 @@ public class JenkinsClient {
 
         HttpGet httpGet = new HttpGet(url);
         httpGet.addHeader("Authorization",auth());
-        Crumb crumb = getCrumb();
+        Crumb crumb = getCrumb(httpClient);
         httpGet.addHeader(crumb.getCrumbRequestField(),crumb.getCrumb());
 
         try {

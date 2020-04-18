@@ -35,7 +35,6 @@ public class BuildWindow {
     private JTable buildParamTable;
     private JComboBox<String> jobListBox;
     private JLabel selectJobLabel;
-    private JToolBar titleBar;
     private JLabel titleBtn;
 
     private String selectItem;
@@ -114,7 +113,6 @@ public class BuildWindow {
     }
 
     private void init() {
-        titleBtn.setIcon(AllIcons.Actions.Refresh);
         buildBtn.setIcon(AllIcons.Actions.Compile);
         restParamBtn.setIcon(AllIcons.Actions.Restart);
 
