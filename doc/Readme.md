@@ -6,20 +6,20 @@ Jenkins Plugin
 [![Jdk Version](https://img.shields.io/badge/JDK-1.8-green)](https://www.oracle.com/java/technologies/javase-jdk8-downloads.html)
 [![JetBrains Plugins](https://img.shields.io/badge/Code%20Version-0.0.23-brightgreen)](https://plugins.jetbrains.com/plugin/13667-jenkins-tools)
 
-[![JetBrains Plugins](https://img.shields.io/badge/Language-%E4%B8%AD%E6%96%87-orange)](doc/Readme.md)
+[![JetBrains Plugins](https://img.shields.io/badge/%E8%AF%AD%E8%A8%80-English-orange)](../README.md)
 
-## Install
+## 安装
 ##### MacOS
-    a.open IntelliiJ IDEA -> Preferences... -> Plugins ->  Marketplace , input for key "jenkins plugin" , click install.
-    b.go to url for (https://plugins.jetbrains.com/plugin/13667-jenkins-tools) , download and install.
+    1.打开 IntelliiJ IDEA -> Preferences... -> Plugins ->  Marketplace , 输入"jenkins plugin"搜索, 点击安装.
+    2.通过浏览器打开网址 (https://plugins.jetbrains.com/plugin/13667-jenkins-tools) , 下载到本地，执行本地安装.
 ##### Windows
-    a.open File -> Setting -> Plugins ->  Marketplace , input for key "jenkins plugin" , click install.
-    b.go to url for (https://plugins.jetbrains.com/plugin/13667-jenkins-tools) , download and install.
+    1.打开 File -> Setting -> Plugins ->  Marketplace , 输入"jenkins plugin"搜索, 点击安装.
+    2.通过浏览器打开网址 (https://plugins.jetbrains.com/plugin/13667-jenkins-tools) , 下载到本地，执行本地安装.
     
-## Use
-    Please open setting for 'Other -> Jenkins Plugin' , input your host of jenkins server and user or password.
+## 配置
+    打开设置面板, 点击 'Other -> Jenkins Plugin' , 输入Jenkins 服务地址, 登陆账号和密码即可.
 
-## Version
+## 版本一览
 ![Jdk Version](https://img.shields.io/badge/JDK-1.8-green)
 ![Jdk Version](https://img.shields.io/badge/http%20client-4.5.10-green)
 ![Jdk Version](https://img.shields.io/badge/commons%20io-2.6-green)
