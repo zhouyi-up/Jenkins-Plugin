@@ -16,4 +16,11 @@ Jenkins Plugin
     b.go to url for (https://plugins.jetbrains.com/plugin/13667-jenkins-tools) , download and install.
     
 ## Use
+    Please open setting for 'Other -> Jenkins Plugin' , input your host of jenkins server and user or password.
 
+## Version
+![Jdk Version](https://img.shields.io/badge/JDK-1.8-green)
+![Jdk Version](https://img.shields.io/badge/http%20client-4.5.10-green)
+![Jdk Version](https://img.shields.io/badge/commons%20io-2.6-green)
+![Jdk Version](https://img.shields.io/badge/commons%20lang3-3.9-green)
+![Jdk Version](https://img.shields.io/badge/jackson-2.10.1-green)
