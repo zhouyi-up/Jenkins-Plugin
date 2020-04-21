@@ -9,22 +9,13 @@ version '0.0.23'
 sourceCompatibility = 1.8
 
 repositories {
-//    mavenCentral()
-//    maven {
-//        url "https://oss.sonatype.org/content/repositories/snapshots/"
-//    }
-//    maven {
-//        url 'https://dl.bintray.com/jetbrains/intellij-plugin-service'
-//    }
-    maven {
-        url "https://www.jitpack.io"
-    }
-//    maven {
-//        url "https://dl.bintray.com/kotlin/kotlin-dev/"
-//    }
+    maven { url "https://www.jetbrains.com/intellij-repository/releases" }
+//    maven { url "https://www.jetbrains.com/intellij-repository/snapshots"}
+    maven { url "https://jetbrains.bintray.com/intellij-third-party-dependencies" }
     maven {
         url 'http://maven.aliyun.com/nexus/content/groups/public/'
     }
+    mavenCentral()
     mavenLocal()
 }
 
