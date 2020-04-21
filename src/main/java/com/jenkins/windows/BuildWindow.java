@@ -35,6 +35,7 @@ public class BuildWindow {
     private JTable buildParamTable;
     private JComboBox<String> jobListBox;
     private JLabel selectJobLabel;
+    private JButton refreshBtn;
     private JLabel titleBtn;
 
     private String selectItem;
@@ -110,6 +111,12 @@ public class BuildWindow {
                 }
             }
         });
+        refreshBtn.addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                init();
+            }
+        });
     }
 
     private void init() {
@@ -123,7 +130,7 @@ public class BuildWindow {
         String[][] paramArr = null;
         ParamTableModel<String> paramTableModel = new ParamTableModel<>(paramArr);
         buildParamTable.setModel(paramTableModel);
-        buildParamTable.setRowHeight(20);
+        buildParamTable.setRowHeight(18);
 
         initJobList();
 
@@ -159,6 +166,7 @@ public class BuildWindow {
     }
 
     private void initJobList(){
+        jobListBox.removeAllItems();
         JenkinsClientUtils instance = JenkinsClientUtils.getInstance();
         JobListEntity allJob = instance.getAllJob();
         List<JobListEntity.JobsBean> jobs = allJob.getJobs();

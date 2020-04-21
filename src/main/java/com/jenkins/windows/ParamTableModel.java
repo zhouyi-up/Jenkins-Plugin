@@ -7,7 +7,7 @@ import javax.swing.table.DefaultTableModel;
  */
 public class ParamTableModel<T> extends DefaultTableModel {
 
-    private static final String[] header = {"param","value"};
+    private static final String[] header = {"Param","Value"};
 
     public ParamTableModel(T[][] paramArr){
         super(paramArr,header);
