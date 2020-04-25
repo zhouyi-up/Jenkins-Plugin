@@ -6,6 +6,7 @@ import com.intellij.notification.NotificationType;
 import com.intellij.notification.Notifications;
 import com.jenkins.model.JobEntity;
 import com.jenkins.model.JobListEntity;
+import com.jenkins.utils.JsonUtils;
 import org.apache.commons.io.IOUtils;
 import org.apache.http.HttpEntity;
 import org.apache.http.HttpStatus;
@@ -22,7 +23,6 @@ import java.io.InputStream;
 import java.util.ArrayList;
 import java.util.Base64;
 import java.util.List;
-import java.util.Map;
 
 /**
  * @author liujun

@@ -2,18 +2,15 @@ package com.jenkins.windows;
 
 import com.intellij.icons.AllIcons;
 import com.intellij.notification.Notification;
-import com.intellij.notification.NotificationAction;
 import com.intellij.notification.NotificationType;
 import com.intellij.notification.Notifications;
 import com.jenkins.JenkinsClientUtils;
 import com.jenkins.JenkinsPropertiesComponent;
 import com.jenkins.JenkinsResponse;
-import com.jenkins.JsonUtils;
 import com.jenkins.model.JobEntity;
 import com.jenkins.model.JobListEntity;
 import org.apache.commons.lang3.ArrayUtils;
 import org.apache.commons.lang3.StringUtils;
-import org.apache.xmlbeans.impl.xb.xsdschema.All;
 
 import javax.swing.*;
 import java.awt.*;
