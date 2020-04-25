@@ -4,6 +4,7 @@ import com.intellij.icons.AllIcons;
 import com.intellij.notification.Notification;
 import com.intellij.notification.NotificationType;
 import com.intellij.notification.Notifications;
+import com.jenkins.client.BuildParam;
 import com.jenkins.model.JobEntity;
 import com.jenkins.model.JobListEntity;
 import com.jenkins.utils.JsonUtils;

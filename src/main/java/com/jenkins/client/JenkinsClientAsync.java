@@ -1,10 +1,11 @@
 package com.jenkins.client;
 
-import com.jenkins.BuildParam;
+import com.jenkins.config.HttpLogger;
 import com.jenkins.utils.JsonUtils;
 import com.jenkins.model.JobEntity;
 import com.jenkins.model.JobListEntity;
 import okhttp3.*;
+import okhttp3.logging.HttpLoggingInterceptor;
 
 import java.io.IOException;
 import java.util.Base64;
@@ -27,7 +28,12 @@ public class JenkinsClientAsync {
         this.username = username;
         this.password = password;
         this.jenkinsHost = jenkinsHost;
-        client = new OkHttpClient();
+
+        HttpLoggingInterceptor loggingInterceptor = new HttpLoggingInterceptor(new HttpLogger());
+        loggingInterceptor.setLevel(HttpLoggingInterceptor.Level.BODY);
+        client = new OkHttpClient.Builder()
+                .addInterceptor(loggingInterceptor)
+                .build();
         refreshCrumb();
     }
 
@@ -89,8 +95,8 @@ public class JenkinsClientAsync {
      * @param buildParam
      * @param callback
      */
-    public void build(BuildParam buildParam, DefaultCallback callback){
-        String url = jenkinsHost+"/job/"+buildParam.getJobName()+"/build";
+    public void build(BuildParam buildParam, DefaultCallback<String> callback){
+        String url = jenkinsHost+"job/"+buildParam.getJobName()+"/build";
 
         if (buildParam.getParam().isEmpty() ||
             buildParam.getParam().size() == 0
@@ -98,18 +104,20 @@ public class JenkinsClientAsync {
             return;
         }
 
-        FormBody.Builder builder = new FormBody.Builder();
+        MultipartBody.Builder builder = new MultipartBody.Builder();
         for (String key : buildParam.getParam().keySet()) {
-            builder.add(key,buildParam.getParam().get(key));
+            builder.addFormDataPart(key,buildParam.getParam().get(key));
         }
 
-        FormBody requestBody = builder.build();
+        RequestBody requestBody = builder.build();
+
 
         Request request = new Request.Builder()
                 .url(url)
+                .post(requestBody)
+                .addHeader("Content-Type","multipart/form-data")
                 .addHeader("Authorization",auth())
                 .addHeader(crumb.getCrumbRequestField(),crumb.getCrumb())
-                .post(requestBody)
                 .build();
 
         client.newCall(request).enqueue(callback);
@@ -120,10 +128,15 @@ public class JenkinsClientAsync {
      * @param jobName
      * @param callback
      */
-    public void build(String jobName,DefaultCallback callback){
-        String url = jenkinsHost+"/job/"+jobName+"/build";
+    public void build(String jobName,DefaultCallback<String> callback){
+        String url = jenkinsHost+"job/"+jobName+"/build";
+
+        RequestBody requestBody = FormBody.create(MediaType.parse("multipart/form-data;,charset=utf-8"), "");
+
         Request request = new Request.Builder()
+                .post(requestBody)
                 .url(url)
+                .addHeader("Content-Type","multipart/form-data")
                 .addHeader("Authorization",auth())
                 .addHeader(crumb.getCrumbRequestField(),crumb.getCrumb())
                 .build();

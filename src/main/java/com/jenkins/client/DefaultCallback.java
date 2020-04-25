@@ -17,21 +17,18 @@ import java.lang.reflect.ParameterizedType;
  */
 public abstract class DefaultCallback<T> implements Callback {
 
-    public static final Logger logger = LoggerFactory.getLogger("DefaultCallback");
 
 
     @Override
     public void onFailure(@NotNull Call call, @NotNull IOException e) {
-        logger.error("Request error",e);
+        System.out.println(e.getMessage());
         error(e);
     }
 
     @Override
     public void onResponse(@NotNull Call call, @NotNull Response response) throws IOException {
         String bodyString = response.body().string();
-        logger.info("The response body is {}", bodyString);
         if (StringUtils.isEmpty(bodyString)){
-            logger.error("The response body is empty !");
             return;
         }
         T data = JsonUtils.parseObject(bodyString, getTClass());

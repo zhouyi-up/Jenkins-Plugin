@@ -1,5 +1,6 @@
 package com.jenkins;
 
+import com.jenkins.client.BuildParam;
 import com.jenkins.model.JobEntity;
 import com.jenkins.model.JobListEntity;
 

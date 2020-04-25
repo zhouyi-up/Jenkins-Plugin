@@ -1,4 +1,4 @@
-package com.jenkins;
+package com.jenkins.client;
 
 import java.util.HashMap;
 import java.util.Map;

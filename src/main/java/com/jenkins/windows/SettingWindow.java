@@ -22,7 +22,7 @@ public class SettingWindow implements SearchableConfigurable, Configurable.NoScr
     private JPanel settingPanel;
     private JTextField jenkinsHostText;
     private JTextField jenkinsUserText;
-    private JTextField jenkinsPwdText;
+    private JPasswordField jenkinsPwdText;
 
     public SettingWindow() {
         init();

@@ -4,9 +4,11 @@ import com.intellij.icons.AllIcons;
 import com.intellij.notification.Notification;
 import com.intellij.notification.NotificationType;
 import com.intellij.notification.Notifications;
-import com.jenkins.JenkinsClientUtils;
 import com.jenkins.JenkinsPropertiesComponent;
 import com.jenkins.JenkinsResponse;
+import com.jenkins.client.BuildParam;
+import com.jenkins.client.DefaultCallback;
+import com.jenkins.client.JenkinsClientAsync;
 import com.jenkins.model.JobEntity;
 import com.jenkins.model.JobListEntity;
 import org.apache.commons.lang3.ArrayUtils;
@@ -33,11 +35,17 @@ public class BuildWindow {
     private JComboBox<String> jobListBox;
     private JLabel selectJobLabel;
     private JButton refreshBtn;
+    private JPanel selectPane;
     private JLabel titleBtn;
 
     private String selectItem;
 
+    private JenkinsClientAsync clientAsync;
+
     public BuildWindow() {
+        clientAsync = new JenkinsClientAsync(JenkinsPropertiesComponent.getHost(),
+                JenkinsPropertiesComponent.getUser(),
+                JenkinsPropertiesComponent.getPwd());
 
         init();
 
@@ -61,23 +69,55 @@ public class BuildWindow {
                         dataArr[j][i] = valueAt;
                     }
                 }
+
                 Map<Object, Object> paramMap = ArrayUtils.toMap(dataArr);
-                JenkinsClientUtils instance = JenkinsClientUtils.getInstance();
-                JenkinsResponse build = instance.build(selectItem, paramMap);
-                if (build.isSuccess()){
-                    jenkinsDisplayText.setForeground(Color.BLUE);
-                    jenkinsDisplayText.setText("Build Success !");
+
+                if (paramMap == null || paramMap.isEmpty()){
+                    clientAsync.build(selectItem, new DefaultCallback() {
+                        @Override
+                        public void success(Object data) {
+                            buildSuccess(Color.BLUE, "Build Success !");
+                        }
+
+                        @Override
+                        public void error(Exception exception) {
+                            buildSuccess(Color.RED, "Build error !");
+
+                            Notification notification = new Notification("",
+                                    AllIcons.Actions.Forward, NotificationType.WARNING);
+                            notification.setContent(exception.getMessage());
+                            notification.setTitle("Build Error ");
+                            Notifications.Bus.notify(notification);
+                        }
+                    });
                 }else {
-                    jenkinsDisplayText.setForeground(Color.RED);
-                    jenkinsDisplayText.setText("Build error !");
+                    BuildParam buildParam = new BuildParam();
+                    buildParam.setJobName(selectItem);
+                    buildParam.addParamForObject(paramMap);
 
-                    Notification notification = new Notification("",
-                            AllIcons.Actions.Forward, NotificationType.WARNING);
-                    notification.setContent(build.getErrorMsg());
-                    notification.setTitle("Build Error ");
-                    Notifications.Bus.notify(notification);
+                    clientAsync.build(buildParam, new DefaultCallback() {
+                        @Override
+                        public void success(Object data) {
+                            buildSuccess(Color.BLUE, "Build Success !");
+                        }
+
+                        @Override
+                        public void error(Exception exception) {
+                            buildSuccess(Color.RED, "Build error !");
+
+                            Notification notification = new Notification("",
+                                    AllIcons.Actions.Forward, NotificationType.WARNING);
+                            notification.setContent(exception.getMessage());
+                            notification.setTitle("Build Error ");
+                            Notifications.Bus.notify(notification);
+                        }
+                    });
                 }
+            }
 
+            private void buildSuccess(Color blue, String s) {
+                jenkinsDisplayText.setForeground(blue);
+                jenkinsDisplayText.setText(s);
             }
         });
         restParamBtn.addActionListener(new ActionListener() {
@@ -117,9 +157,6 @@ public class BuildWindow {
     }
 
     private void init() {
-        buildBtn.setIcon(AllIcons.Actions.Compile);
-        restParamBtn.setIcon(AllIcons.Actions.Restart);
-
         int init = JenkinsPropertiesComponent.isInit();
         if (init != 1){
             return;
@@ -142,38 +179,44 @@ public class BuildWindow {
         ParamTableModel<String> model = (ParamTableModel<String>) buildParamTable.getModel();
         model.setRowCount(0);
 
-        JenkinsClientUtils instance = JenkinsClientUtils.getInstance();
-        JobEntity job = instance.getJob(selectItem);
-        List<JobEntity.PropertyBean> property = job.getProperty();
-        if (property.isEmpty()){
-            return;
-        }
-        List<JobEntity.PropertyBean> collect = property.stream().filter(e -> e.get_class().equals("hudson.model.ParametersDefinitionProperty"))
-                .collect(Collectors.toList());
-        if (collect.isEmpty()){
-            return;
-        }
-        List<JobEntity.PropertyBean.ParameterDefinitionsBeanX> parameterList = collect.get(0).getParameterDefinitions();
-        if (!parameterList.isEmpty()){
-            for (JobEntity.PropertyBean.ParameterDefinitionsBeanX param : parameterList) {
-                model.addRow(new Object[]{param.getName(),param.getDefaultParameterValue().getValue()});
+        clientAsync.jobInfo(selectItem, new DefaultCallback<JobEntity>() {
+            @Override
+            public void success(JobEntity data) {
+                List<JobEntity.PropertyBean> property = data.getProperty();
+                if (property.isEmpty()){
+                    return;
+                }
+                List<JobEntity.PropertyBean> collect = property.stream().filter(e -> e.get_class().equals("hudson.model.ParametersDefinitionProperty"))
+                        .collect(Collectors.toList());
+                if (collect.isEmpty()){
+                    return;
+                }
+                List<JobEntity.PropertyBean.ParameterDefinitionsBeanX> parameterList = collect.get(0).getParameterDefinitions();
+                if (!parameterList.isEmpty()){
+                    for (JobEntity.PropertyBean.ParameterDefinitionsBeanX param : parameterList) {
+                        model.addRow(new Object[]{param.getName(),param.getDefaultParameterValue().getValue()});
+                    }
+                }
+                buildParamTable.invalidate();
             }
-        }
-        buildParamTable.invalidate();
+        });
     }
 
     private void initJobList(){
         jobListBox.removeAllItems();
-        JenkinsClientUtils instance = JenkinsClientUtils.getInstance();
-        JobListEntity allJob = instance.getAllJob();
-        List<JobListEntity.JobsBean> jobs = allJob.getJobs();
-        if (!jobs.isEmpty()) {
-            for (JobListEntity.JobsBean job : jobs) {
-                jobListBox.addItem(job.getName());
-            }
-            selectItem = jobs.get(0).getName();
-        }
 
+        clientAsync.jobList(new DefaultCallback<JobListEntity>() {
+            @Override
+            public void success(JobListEntity data) {
+                List<JobListEntity.JobsBean> jobs = data.getJobs();
+                if (!jobs.isEmpty()) {
+                    for (JobListEntity.JobsBean job : jobs) {
+                        jobListBox.addItem(job.getName());
+                    }
+                    selectItem = jobs.get(0).getName();
+                }
+            }
+        });
     }
 
     public JPanel getContent(){
