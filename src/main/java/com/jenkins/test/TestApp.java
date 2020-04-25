@@ -1,6 +1,6 @@
 package com.jenkins.test;
 
-import com.jenkins.JsonUtils;
+import com.jenkins.utils.JsonUtils;
 import com.jenkins.client.DefaultCallback;
 import com.jenkins.client.JenkinsClientAsync;
 import com.jenkins.model.JobListEntity;

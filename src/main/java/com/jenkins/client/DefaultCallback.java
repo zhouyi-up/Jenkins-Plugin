@@ -1,7 +1,6 @@
 package com.jenkins.client;
 
-import com.jenkins.JsonUtils;
-import net.sf.cglib.asm.$ClassReader;
+import com.jenkins.utils.JsonUtils;
 import okhttp3.Call;
 import okhttp3.Callback;
 import okhttp3.Response;
@@ -24,6 +23,7 @@ public abstract class DefaultCallback<T> implements Callback {
     @Override
     public void onFailure(@NotNull Call call, @NotNull IOException e) {
         logger.error("Request error",e);
+        error(e);
     }
 
     @Override
@@ -48,4 +48,12 @@ public abstract class DefaultCallback<T> implements Callback {
      * @param data
      */
     public abstract void success(T data);
+
+    /**
+     * 错误
+     * @param exception
+     */
+    public void error(Exception exception){
+
+    }
 }

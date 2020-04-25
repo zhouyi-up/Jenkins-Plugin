@@ -1,10 +1,10 @@
 package com.jenkins.client;
 
-import com.jenkins.JsonUtils;
+import com.jenkins.BuildParam;
+import com.jenkins.utils.JsonUtils;
 import com.jenkins.model.JobEntity;
 import com.jenkins.model.JobListEntity;
 import okhttp3.*;
-import org.jetbrains.annotations.NotNull;
 
 import java.io.IOException;
 import java.util.Base64;
@@ -81,6 +81,53 @@ public class JenkinsClientAsync {
                 .addHeader("Authorization",auth())
                 .addHeader(crumb.getCrumbRequestField(),crumb.getCrumb())
                 .build();
+        client.newCall(request).enqueue(callback);
+    }
+
+    /**
+     * 构建
+     * @param buildParam
+     * @param callback
+     */
+    public void build(BuildParam buildParam, DefaultCallback callback){
+        String url = jenkinsHost+"/job/"+buildParam.getJobName()+"/build";
+
+        if (buildParam.getParam().isEmpty() ||
+            buildParam.getParam().size() == 0
+        ){
+            return;
+        }
+
+        FormBody.Builder builder = new FormBody.Builder();
+        for (String key : buildParam.getParam().keySet()) {
+            builder.add(key,buildParam.getParam().get(key));
+        }
+
+        FormBody requestBody = builder.build();
+
+        Request request = new Request.Builder()
+                .url(url)
+                .addHeader("Authorization",auth())
+                .addHeader(crumb.getCrumbRequestField(),crumb.getCrumb())
+                .post(requestBody)
+                .build();
+
+        client.newCall(request).enqueue(callback);
+    }
+
+    /**
+     * 构建
+     * @param jobName
+     * @param callback
+     */
+    public void build(String jobName,DefaultCallback callback){
+        String url = jenkinsHost+"/job/"+jobName+"/build";
+        Request request = new Request.Builder()
+                .url(url)
+                .addHeader("Authorization",auth())
+                .addHeader(crumb.getCrumbRequestField(),crumb.getCrumb())
+                .build();
+
         client.newCall(request).enqueue(callback);
     }
 }

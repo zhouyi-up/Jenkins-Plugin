@@ -1,4 +1,4 @@
-package com.jenkins;
+package com.jenkins.utils;
 
 import com.fasterxml.jackson.core.JsonParser;
 import com.fasterxml.jackson.core.JsonProcessingException;
