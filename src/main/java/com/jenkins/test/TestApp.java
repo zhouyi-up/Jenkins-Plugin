@@ -15,10 +15,15 @@ public class TestApp {
         String url = "http://hw.corele.top:8000/";
         JenkinsClientAsync jenkinsClientAsync = new JenkinsClientAsync(url, "admin", "Corele1024.");
 
-        jenkinsClientAsync.jobList(new DefaultCallback<JobListEntity>() {
+        jenkinsClientAsync.build("Api-robot", new DefaultCallback<String>() {
             @Override
-            public void success(JobListEntity data) {
+            public void success(String data) {
                 System.out.println(JsonUtils.toJsonString(data));
+            }
+
+            @Override
+            public void error(Exception exception) {
+                System.out.println(exception);
             }
         });
     }

@@ -1,5 +1,6 @@
 package com.jenkins.client;
 
+import com.google.common.collect.Lists;
 import com.jenkins.config.HttpLogger;
 import com.jenkins.utils.JsonUtils;
 import com.jenkins.model.JobEntity;
@@ -9,6 +10,7 @@ import okhttp3.logging.HttpLoggingInterceptor;
 
 import java.io.IOException;
 import java.util.Base64;
+import java.util.List;
 
 /**
  * @author corele
@@ -131,7 +133,7 @@ public class JenkinsClientAsync {
     public void build(String jobName,DefaultCallback<String> callback){
         String url = jenkinsHost+"job/"+jobName+"/build";
 
-        RequestBody requestBody = FormBody.create(MediaType.parse("multipart/form-data;,charset=utf-8"), "");
+        RequestBody requestBody = new FormBody(Lists.newArrayList(),Lists.newArrayList());
 
         Request request = new Request.Builder()
                 .post(requestBody)
