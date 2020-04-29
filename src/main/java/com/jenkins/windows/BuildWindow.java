@@ -5,7 +5,6 @@ import com.intellij.notification.Notification;
 import com.intellij.notification.NotificationType;
 import com.intellij.notification.Notifications;
 import com.jenkins.JenkinsPropertiesComponent;
-import com.jenkins.JenkinsResponse;
 import com.jenkins.client.BuildParam;
 import com.jenkins.client.DefaultCallback;
 import com.jenkins.client.JenkinsClientAsync;
