@@ -115,10 +115,7 @@ public class BuildWindow {
                 }
             }
 
-            private void buildSuccess(Color blue, String s) {
-                jenkinsDisplayText.setForeground(blue);
-                jenkinsDisplayText.setText(s);
-            }
+
         });
         restParamBtn.addActionListener(new ActionListener() {
             /**
@@ -154,6 +151,10 @@ public class BuildWindow {
                 init();
             }
         });
+    }
+    private void buildSuccess(Color blue, String s) {
+        jenkinsDisplayText.setForeground(blue);
+        jenkinsDisplayText.setText(s);
     }
 
     private void init() {

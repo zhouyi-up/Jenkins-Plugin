@@ -1,16 +1,22 @@
 package com.jenkins.client;
 
 import com.google.common.collect.Lists;
+import com.google.common.collect.Maps;
+import com.intellij.icons.AllIcons;
+import com.intellij.notification.Notification;
+import com.intellij.notification.NotificationType;
+import com.intellij.notification.Notifications;
 import com.jenkins.config.HttpLogger;
 import com.jenkins.utils.JsonUtils;
 import com.jenkins.model.JobEntity;
 import com.jenkins.model.JobListEntity;
 import okhttp3.*;
 import okhttp3.logging.HttpLoggingInterceptor;
+import org.jetbrains.annotations.NotNull;
 
+import java.io.File;
 import java.io.IOException;
-import java.util.Base64;
-import java.util.List;
+import java.util.*;
 
 /**
  * @author corele
@@ -26,6 +32,8 @@ public class JenkinsClientAsync {
 
     private Crumb crumb = null;
 
+    private final HashMap<String, List<Cookie>> cookieStore = new HashMap<>();
+
     public JenkinsClientAsync(String jenkinsHost,String username,String password){
         this.username = username;
         this.password = password;
@@ -35,6 +43,19 @@ public class JenkinsClientAsync {
         loggingInterceptor.setLevel(HttpLoggingInterceptor.Level.BODY);
         client = new OkHttpClient.Builder()
                 .addInterceptor(loggingInterceptor)
+                .cookieJar(new CookieJar() {
+                    @Override
+                    public void saveFromResponse(@NotNull HttpUrl httpUrl, @NotNull List<Cookie> list) {
+                        cookieStore.put(httpUrl.host(), list);
+                    }
+
+                    @NotNull
+                    @Override
+                    public List<Cookie> loadForRequest(@NotNull HttpUrl httpUrl) {
+                        List<Cookie> cookies = cookieStore.get(httpUrl.host());
+                        return cookies != null ? cookies : new ArrayList<Cookie>();
+                    }
+                })
                 .build();
         refreshCrumb();
     }
@@ -52,9 +73,19 @@ public class JenkinsClientAsync {
         Request request = new Request.Builder()
                 .url(url)
                 .addHeader("Authorization",auth())
+                .addHeader("Connection","keep-alive")
                 .build();
         Response response = client.newCall(request).execute();
-        return JsonUtils.parseObject(response.body().string(),Crumb.class);
+        if (response.isSuccessful()){
+            return JsonUtils.parseObject(response.body().string(),Crumb.class);
+        }else {
+            Notification notification = new Notification("",
+                    AllIcons.Actions.Forward, NotificationType.WARNING);
+            notification.setContent(response.toString());
+            notification.setTitle("Build Error ");
+            Notifications.Bus.notify(notification);
+            return new Crumb();
+        }
     }
 
     private String auth() {
@@ -98,22 +129,18 @@ public class JenkinsClientAsync {
      * @param callback
      */
     public void build(BuildParam buildParam, DefaultCallback<String> callback){
-        String url = jenkinsHost+"job/"+buildParam.getJobName()+"/build";
+        String url = jenkinsHost+"/job/"+buildParam.getJobName()+"/buildWithParameters";
 
         if (buildParam.getParam().isEmpty() ||
             buildParam.getParam().size() == 0
         ){
             return;
         }
-
-        MultipartBody.Builder builder = new MultipartBody.Builder();
+        FormBody.Builder builder = new FormBody.Builder();
         for (String key : buildParam.getParam().keySet()) {
-            builder.addFormDataPart(key,buildParam.getParam().get(key));
+            builder.add(key,buildParam.getParam().get(key));
         }
-
         RequestBody requestBody = builder.build();
-
-
         Request request = new Request.Builder()
                 .url(url)
                 .post(requestBody)
@@ -135,12 +162,23 @@ public class JenkinsClientAsync {
 
         RequestBody requestBody = new FormBody(Lists.newArrayList(),Lists.newArrayList());
 
+        Headers headers = new Headers.Builder()
+                .add("Accept","text/html,application/xhtml+xml,application/xml;q=0.9,image/webp,image/apng,*/*;q=0.8,application/signed-exchange;v=b3;q=0.9")
+                .add("Connection","keep-alive")
+                .add("Accept-Encoding","gzip, deflate")
+                .add("DNT","1")
+                .add("Upgrade-Insecure-Requests","1")
+                .add("Referer",url)
+                .add("Origin",jenkinsHost)
+                .add("Cookie","ACEGI_SECURITY_HASHED_REMEMBER_ME_COOKIE=YWRtaW46MTU4OTM3NTkzNDA1Nzo0YTZmZTBhZDAzYWUxOTAyNTAxNmQzMjM4NDJmMjE2YTkxMTBlOTYyOGU5YmY1ZjdhM2Y5ZDYwZGJlZWY2ZmM2; screenResolution=1920x1080; jenkins-timestamper-offset=-28800000; JSESSIONID.7eac3837=node05utocqj127klzs5vmz98rpg856.node0")
+                .add("Authorization",auth())
+                .add(crumb.getCrumbRequestField(),crumb.getCrumb())
+                .build();
+
         Request request = new Request.Builder()
                 .post(requestBody)
                 .url(url)
-                .addHeader("Content-Type","multipart/form-data")
-                .addHeader("Authorization",auth())
-                .addHeader(crumb.getCrumbRequestField(),crumb.getCrumb())
+                .headers(headers)
                 .build();
 
         client.newCall(request).enqueue(callback);

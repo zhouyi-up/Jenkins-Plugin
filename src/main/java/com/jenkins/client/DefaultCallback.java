@@ -1,5 +1,9 @@
 package com.jenkins.client;
 
+import com.intellij.icons.AllIcons;
+import com.intellij.notification.Notification;
+import com.intellij.notification.NotificationType;
+import com.intellij.notification.Notifications;
 import com.jenkins.utils.JsonUtils;
 import okhttp3.Call;
 import okhttp3.Callback;
@@ -21,18 +25,27 @@ public abstract class DefaultCallback<T> implements Callback {
 
     @Override
     public void onFailure(@NotNull Call call, @NotNull IOException e) {
-        System.out.println(e.getMessage());
+        Notification notification = new Notification("",
+                AllIcons.Actions.Forward, NotificationType.WARNING);
+        notification.setContent(e.getMessage());
+        notification.setTitle("Build Error ");
+        Notifications.Bus.notify(notification);
         error(e);
     }
 
     @Override
     public void onResponse(@NotNull Call call, @NotNull Response response) throws IOException {
-        String bodyString = response.body().string();
-        if (StringUtils.isEmpty(bodyString)){
-            return;
+        if (response.isSuccessful()){
+            String bodyString = response.body().string();
+            if (StringUtils.isEmpty(bodyString)){
+                success(null);
+                return;
+            }
+            T data = JsonUtils.parseObject(bodyString, getTClass());
+            success(data);
+        }else {
+            error(new RuntimeException(response.toString()));
         }
-        T data = JsonUtils.parseObject(bodyString, getTClass());
-        success(data);
     }
 
     public Class<T> getTClass() {
