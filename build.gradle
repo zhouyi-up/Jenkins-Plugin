@@ -4,7 +4,7 @@ plugins {
 }
 
 group 'cn.j-tools'
-version '0.0.23'
+version '0.0.25'
 
 sourceCompatibility = 1.8
 
@@ -24,7 +24,6 @@ dependencies {
     compile 'com.squareup.okhttp3:logging-interceptor:3.5.0'
     compile group: 'com.google.guava', name: 'guava', version: '29.0-jre'
     compile group: 'org.slf4j', name: 'slf4j-api', version: '1.7.25'
-    compile group: 'org.apache.httpcomponents', name: 'httpclient', version: '4.5.10'
     compile group: 'commons-io', name: 'commons-io', version: '2.6'
     compile group: 'org.apache.commons', name: 'commons-lang3', version: '3.9'
     compile group: 'com.fasterxml.jackson.core', name: 'jackson-databind', version: '2.10.1'
@@ -42,6 +41,7 @@ patchPluginXml {
         <li>Support build for 2020.1 </li>
         <li>Fix Bugs</li>
         <li>New UI</li>
+        
     </ol>
     """
 }
