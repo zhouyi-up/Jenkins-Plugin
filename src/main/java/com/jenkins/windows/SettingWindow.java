@@ -11,6 +11,8 @@ import org.jetbrains.annotations.Nullable;
 import javax.swing.*;
 import javax.swing.event.DocumentEvent;
 import javax.swing.event.DocumentListener;
+import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
 
 /**
  * @author liujun
@@ -23,15 +25,25 @@ public class SettingWindow implements SearchableConfigurable, Configurable.NoScr
     private JTextField jenkinsHostText;
     private JTextField jenkinsUserText;
     private JPasswordField jenkinsPwdText;
+    private JCheckBox crumbEnable;
 
     public SettingWindow() {
         init();
+
+
     }
 
     private void init(){
         jenkinsUserText.getDocument().addDocumentListener(getDocumentListener());
         jenkinsPwdText.getDocument().addDocumentListener(getDocumentListener());
         jenkinsHostText.getDocument().addDocumentListener(getDocumentListener());
+
+        crumbEnable.addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                isModified = getChangeState();
+            }
+        });
 
         initJenkinsParam();
     }
@@ -40,6 +52,7 @@ public class SettingWindow implements SearchableConfigurable, Configurable.NoScr
         jenkinsHostText.setText(JenkinsPropertiesComponent.getHost());
         jenkinsUserText.setText(JenkinsPropertiesComponent.getUser());
         jenkinsPwdText.setText(JenkinsPropertiesComponent.getPwd());
+        crumbEnable.setSelected(JenkinsPropertiesComponent.getCrumbEnable());
     }
 
     @NotNull
@@ -66,6 +79,7 @@ public class SettingWindow implements SearchableConfigurable, Configurable.NoScr
         if (jenkinsHostText.getText().equals(JenkinsPropertiesComponent.getHost())
                 && jenkinsUserText.getText().equals(JenkinsPropertiesComponent.getUser())
                 && getPwd().equals(JenkinsPropertiesComponent.getPwd())
+                && crumbEnable.isSelected() == JenkinsPropertiesComponent.getCrumbEnable()
         ){
             return false;
         }
@@ -139,6 +153,7 @@ public class SettingWindow implements SearchableConfigurable, Configurable.NoScr
         JenkinsPropertiesComponent.setHost(host);
         JenkinsPropertiesComponent.setUser(user);
         JenkinsPropertiesComponent.setPwd(pwd);
+        JenkinsPropertiesComponent.setCrumbEnable(crumbEnable.isSelected());
 
         isModified = false;
         JenkinsPropertiesComponent.setInit();

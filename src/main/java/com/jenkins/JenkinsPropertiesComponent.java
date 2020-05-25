@@ -11,6 +11,7 @@ public class JenkinsPropertiesComponent {
     public static final String JENKINS_HOST = "jenkins.host";
     public static final String JENKINS_PASSWORD = "jenkins.pwd";
     public static final String JENKINS_USERNAME = "jenkins.username";
+    public static final String JENKINS_CRUMB_ENABLE = "jenkins.enableCrumb";
 
     public static String getHost(){
         PropertiesComponent propertiesComponent = PropertiesComponent.getInstance();
@@ -66,5 +67,15 @@ public class JenkinsPropertiesComponent {
     public static void setInit(){
         PropertiesComponent propertiesComponent = PropertiesComponent.getInstance();
         propertiesComponent.setValue("jenkins.init","1");
+    }
+
+    public static void setCrumbEnable(boolean crumbEnable){
+        PropertiesComponent propertiesComponent = PropertiesComponent.getInstance();
+        propertiesComponent.setValue(JENKINS_CRUMB_ENABLE,crumbEnable);
+    }
+
+    public static boolean getCrumbEnable(){
+        PropertiesComponent propertiesComponent = PropertiesComponent.getInstance();
+        return propertiesComponent.getBoolean(JENKINS_CRUMB_ENABLE);
     }
 }

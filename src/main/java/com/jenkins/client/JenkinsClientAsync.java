@@ -6,6 +6,7 @@ import com.intellij.icons.AllIcons;
 import com.intellij.notification.Notification;
 import com.intellij.notification.NotificationType;
 import com.intellij.notification.Notifications;
+import com.jenkins.JenkinsPropertiesComponent;
 import com.jenkins.config.HttpLogger;
 import com.jenkins.utils.JsonUtils;
 import com.jenkins.model.JobEntity;
@@ -43,6 +44,22 @@ public class JenkinsClientAsync {
         loggingInterceptor.setLevel(HttpLoggingInterceptor.Level.BODY);
         client = new OkHttpClient.Builder()
                 .addInterceptor(loggingInterceptor)
+                .addInterceptor(new Interceptor() {
+                    @NotNull
+                    @Override
+                    public Response intercept(@NotNull Chain chain) throws IOException {
+                        Request request = chain.request();
+                        Request.Builder authorizationBuilder = request.newBuilder()
+                                .addHeader("Authorization", auth());
+                        if (JenkinsPropertiesComponent.getCrumbEnable()){
+                            if (crumb == null){
+                                crumb.getCrumb();
+                            }
+                            authorizationBuilder.addHeader(crumb.getCrumbRequestField(),crumb.getCrumb());
+                        }
+                        return chain.proceed(authorizationBuilder.build());
+                    }
+                })
                 .cookieJar(new CookieJar() {
                     @Override
                     public void saveFromResponse(@NotNull HttpUrl httpUrl, @NotNull List<Cookie> list) {
@@ -75,7 +92,7 @@ public class JenkinsClientAsync {
                 .addHeader("Authorization",auth())
                 .addHeader("Connection","keep-alive")
                 .build();
-        Response response = client.newCall(request).execute();
+        Response response = new OkHttpClient.Builder().build().newCall(request).execute();
         if (response.isSuccessful()){
             return JsonUtils.parseObject(response.body().string(),Crumb.class);
         }else {
@@ -101,8 +118,6 @@ public class JenkinsClientAsync {
 
         Request request = new Request.Builder()
                 .url(url)
-                .addHeader("Authorization",auth())
-                .addHeader(crumb.getCrumbRequestField(),crumb.getCrumb())
                 .build();
 
         client.newCall(request).enqueue(callback);
@@ -117,8 +132,6 @@ public class JenkinsClientAsync {
         String url = jenkinsHost + "/job/"+jobName+"/api/json";
         Request request = new Request.Builder()
                 .url(url)
-                .addHeader("Authorization",auth())
-                .addHeader(crumb.getCrumbRequestField(),crumb.getCrumb())
                 .build();
         client.newCall(request).enqueue(callback);
     }
@@ -145,8 +158,6 @@ public class JenkinsClientAsync {
                 .url(url)
                 .post(requestBody)
                 .addHeader("Content-Type","multipart/form-data")
-                .addHeader("Authorization",auth())
-                .addHeader(crumb.getCrumbRequestField(),crumb.getCrumb())
                 .build();
 
         client.newCall(request).enqueue(callback);
@@ -162,23 +173,9 @@ public class JenkinsClientAsync {
 
         RequestBody requestBody = new FormBody(Lists.newArrayList(),Lists.newArrayList());
 
-        Headers headers = new Headers.Builder()
-                .add("Accept","text/html,application/xhtml+xml,application/xml;q=0.9,image/webp,image/apng,*/*;q=0.8,application/signed-exchange;v=b3;q=0.9")
-                .add("Connection","keep-alive")
-                .add("Accept-Encoding","gzip, deflate")
-                .add("DNT","1")
-                .add("Upgrade-Insecure-Requests","1")
-                .add("Referer",url)
-                .add("Origin",jenkinsHost)
-                .add("Cookie","ACEGI_SECURITY_HASHED_REMEMBER_ME_COOKIE=YWRtaW46MTU4OTM3NTkzNDA1Nzo0YTZmZTBhZDAzYWUxOTAyNTAxNmQzMjM4NDJmMjE2YTkxMTBlOTYyOGU5YmY1ZjdhM2Y5ZDYwZGJlZWY2ZmM2; screenResolution=1920x1080; jenkins-timestamper-offset=-28800000; JSESSIONID.7eac3837=node05utocqj127klzs5vmz98rpg856.node0")
-                .add("Authorization",auth())
-                .add(crumb.getCrumbRequestField(),crumb.getCrumb())
-                .build();
-
         Request request = new Request.Builder()
                 .post(requestBody)
                 .url(url)
-                .headers(headers)
                 .build();
 
         client.newCall(request).enqueue(callback);
