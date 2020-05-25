@@ -38,8 +38,11 @@ patchPluginXml {
     changeNotes """
     feature：
     <ol>
-        <li>Fix:bugs</li>
-        <li>Feature:crumb</li>
+        <li>crumb</li>
+    </ol>
+    fix:
+    <ol>
+        <li>bugs</li>
     </ol>
     """
 }
