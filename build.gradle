@@ -4,7 +4,7 @@ plugins {
 }
 
 group 'cn.j-tools'
-version '0.0.27'
+version '0.1.0'
 
 sourceCompatibility = 1.8
 
@@ -32,13 +32,13 @@ dependencies {
 
 // See https://github.com/JetBrains/gradle-intellij-plugin/
 intellij {
-    version '2020.1'
+    version '2020.2'
 }
 patchPluginXml {
     changeNotes """
     feature：
     <ol>
-        <li>crumb</li>
+        <li>support 2020.2</li>
     </ol>
     fix:
     <ol>
