@@ -4,7 +4,7 @@ plugins {
 }
 
 group 'cn.j-tools'
-version '0.1.0'
+version '0.1.1'
 
 sourceCompatibility = 1.8
 
@@ -32,22 +32,20 @@ dependencies {
 
 // See https://github.com/JetBrains/gradle-intellij-plugin/
 intellij {
-    version '2020.2'
+    version '2020.2.3'
 }
 patchPluginXml {
     changeNotes """
-    feature：
     <ol>
-        <li>support 2020.2</li>
-    </ol>
-    fix:
-    <ol>
-        <li>bugs</li>
+        <li>Support 2020.2.3</li>
+        <li>Default host: http://127.0.0.1:8080 user: admin password: admin</li>
     </ol>
     """
 }
 
 publishPlugin {
+    //perm:Y29yZWxl.OTItMjg4NA==.buQa5oiszDCoZovEGqspQb4jgXrGBV
     token System.getenv("IDEA_TOKEN")
-//    channels 'EAP'
+    println(getToken())
+    channels 'EAP'
 }

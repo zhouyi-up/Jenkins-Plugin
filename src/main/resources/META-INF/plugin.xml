@@ -4,9 +4,13 @@
     <vendor email="732007737@qq.com" url="http://j-tools.cn">j-tools</vendor>
 
     <description><![CDATA[
-        <li>
-            Build Job for server of jenkins. so easy ！
-        </li>
+        You can use this tool to build your Jenkins task, it is very simple, to experience it!
+        <hr/>
+        Features
+        <ol>
+            <li>Parameter auto fill</li>
+            <li>Support multiple configurations</li>
+        </ol>
     ]]></description>
     <!-- please see http://www.jetbrains.org/intellij/sdk/docs/basics/getting_started/plugin_compatibility.html
          on how to target different products -->

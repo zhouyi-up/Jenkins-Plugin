@@ -17,7 +17,7 @@ public class JenkinsPropertiesComponent {
         PropertiesComponent propertiesComponent = PropertiesComponent.getInstance();
         String value = propertiesComponent.getValue(JENKINS_HOST);
         if (StringUtils.isEmpty(value)){
-            return "http://jenkins.example.com";
+            return "http://127.0.0.1:8080";
         }
         return value;
     }
@@ -26,7 +26,7 @@ public class JenkinsPropertiesComponent {
         PropertiesComponent propertiesComponent = PropertiesComponent.getInstance();
         String value = propertiesComponent.getValue(JENKINS_USERNAME);
         if (StringUtils.isEmpty(value)){
-            return "";
+            return "admin";
         }
         return value;
     }
@@ -35,7 +35,7 @@ public class JenkinsPropertiesComponent {
         PropertiesComponent propertiesComponent = PropertiesComponent.getInstance();
         String value = propertiesComponent.getValue(JENKINS_PASSWORD);
         if (StringUtils.isEmpty(value)){
-            return "";
+            return "admin";
         }
         return value;
     }

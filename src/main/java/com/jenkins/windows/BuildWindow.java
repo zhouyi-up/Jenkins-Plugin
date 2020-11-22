@@ -42,7 +42,8 @@ public class BuildWindow {
     private JenkinsClientAsync clientAsync;
 
     public BuildWindow() {
-        clientAsync = new JenkinsClientAsync(JenkinsPropertiesComponent.getHost(),
+        clientAsync = new JenkinsClientAsync(
+                JenkinsPropertiesComponent.getHost(),
                 JenkinsPropertiesComponent.getUser(),
                 JenkinsPropertiesComponent.getPwd());
 
