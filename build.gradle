@@ -44,7 +44,6 @@ patchPluginXml {
 }
 
 publishPlugin {
-    //perm:Y29yZWxl.OTItMjg4NA==.buQa5oiszDCoZovEGqspQb4jgXrGBV
     token System.getenv("IDEA_TOKEN")
     println(getToken())
     channels 'EAP'
