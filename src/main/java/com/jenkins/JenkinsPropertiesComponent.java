@@ -13,7 +13,16 @@ public class JenkinsPropertiesComponent {
     public static final String JENKINS_USERNAME = "jenkins.username";
     public static final String JENKINS_CRUMB_ENABLE = "jenkins.enableCrumb";
 
-    public static String getHost(){
+    private static JenkinsPropertiesComponent jenkinsPropertiesComponent;
+
+    public static JenkinsPropertiesComponent getInstance(){
+        if (jenkinsPropertiesComponent == null){
+            jenkinsPropertiesComponent = new JenkinsPropertiesComponent();
+        }
+        return jenkinsPropertiesComponent;
+    }
+
+    public  String getHost(){
         PropertiesComponent propertiesComponent = PropertiesComponent.getInstance();
         String value = propertiesComponent.getValue(JENKINS_HOST);
         if (StringUtils.isEmpty(value)){
@@ -22,7 +31,7 @@ public class JenkinsPropertiesComponent {
         return value;
     }
 
-    public static String getUser(){
+    public  String getUser(){
         PropertiesComponent propertiesComponent = PropertiesComponent.getInstance();
         String value = propertiesComponent.getValue(JENKINS_USERNAME);
         if (StringUtils.isEmpty(value)){
@@ -31,7 +40,7 @@ public class JenkinsPropertiesComponent {
         return value;
     }
 
-    public static String getPwd(){
+    public  String getPwd(){
         PropertiesComponent propertiesComponent = PropertiesComponent.getInstance();
         String value = propertiesComponent.getValue(JENKINS_PASSWORD);
         if (StringUtils.isEmpty(value)){
@@ -40,22 +49,22 @@ public class JenkinsPropertiesComponent {
         return value;
     }
 
-    public static void setHost(String host){
+    public  void setHost(String host){
         PropertiesComponent propertiesComponent = PropertiesComponent.getInstance();
         propertiesComponent.setValue(JENKINS_HOST,host);
     }
 
-    public static void setUser(String user){
+    public  void setUser(String user){
         PropertiesComponent propertiesComponent = PropertiesComponent.getInstance();
         propertiesComponent.setValue(JENKINS_USERNAME,user);
     }
 
-    public static void setPwd(String pwd){
+    public  void setPwd(String pwd){
         PropertiesComponent propertiesComponent = PropertiesComponent.getInstance();
         propertiesComponent.setValue(JENKINS_PASSWORD,pwd);
     }
 
-    public static int isInit(){
+    public  int isInit(){
         PropertiesComponent propertiesComponent = PropertiesComponent.getInstance();
         String value = propertiesComponent.getValue("jenkins.init");
         if (StringUtils.isEmpty(value)){
@@ -64,17 +73,17 @@ public class JenkinsPropertiesComponent {
         return 1;
     }
 
-    public static void setInit(){
+    public  void setInit(){
         PropertiesComponent propertiesComponent = PropertiesComponent.getInstance();
         propertiesComponent.setValue("jenkins.init","1");
     }
 
-    public static void setCrumbEnable(boolean crumbEnable){
+    public  void setCrumbEnable(boolean crumbEnable){
         PropertiesComponent propertiesComponent = PropertiesComponent.getInstance();
         propertiesComponent.setValue(JENKINS_CRUMB_ENABLE,crumbEnable);
     }
 
-    public static boolean getCrumbEnable(){
+    public  boolean getCrumbEnable(){
         PropertiesComponent propertiesComponent = PropertiesComponent.getInstance();
         return propertiesComponent.getBoolean(JENKINS_CRUMB_ENABLE);
     }

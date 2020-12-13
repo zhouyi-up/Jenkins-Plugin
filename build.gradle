@@ -6,7 +6,7 @@ plugins {
 group 'cn.j-tools'
 version '0.1.1'
 
-sourceCompatibility = 1.8
+sourceCompatibility = 11
 
 repositories {
     maven { url "https://www.jetbrains.com/intellij-repository/releases" }

@@ -33,12 +33,15 @@ public class JenkinsClientAsync {
 
     private Crumb crumb = null;
 
+    private boolean enableCrumb;
+
     private final HashMap<String, List<Cookie>> cookieStore = new HashMap<>();
 
-    public JenkinsClientAsync(String jenkinsHost,String username,String password){
+    public JenkinsClientAsync(String jenkinsHost,String username,String password, boolean enableCrumb){
         this.username = username;
         this.password = password;
         this.jenkinsHost = jenkinsHost;
+        this.enableCrumb = enableCrumb;
 
         HttpLoggingInterceptor loggingInterceptor = new HttpLoggingInterceptor(new HttpLogger());
         loggingInterceptor.setLevel(HttpLoggingInterceptor.Level.BODY);
@@ -51,7 +54,7 @@ public class JenkinsClientAsync {
                         Request request = chain.request();
                         Request.Builder authorizationBuilder = request.newBuilder()
                                 .addHeader("Authorization", auth());
-                        if (JenkinsPropertiesComponent.getCrumbEnable()){
+                        if (enableCrumb){
                             if (crumb == null){
                                 crumb.getCrumb();
                             }
@@ -96,7 +99,7 @@ public class JenkinsClientAsync {
         if (response.isSuccessful()){
             return JsonUtils.parseObject(response.body().string(),Crumb.class);
         }else {
-            Notification notification = new Notification("",
+            Notification notification = new Notification("jenkins.ui.id",
                     AllIcons.Actions.Forward, NotificationType.WARNING);
             notification.setContent(response.toString());
             notification.setTitle("Build Error ");

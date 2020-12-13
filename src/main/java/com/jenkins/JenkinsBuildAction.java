@@ -5,6 +5,9 @@ import com.intellij.openapi.actionSystem.AnActionEvent;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+/**
+ * @author corel
+ */
 public class JenkinsBuildAction extends AnAction {
 
     @Override
