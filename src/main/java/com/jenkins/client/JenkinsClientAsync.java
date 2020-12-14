@@ -56,7 +56,7 @@ public class JenkinsClientAsync {
                                 .addHeader("Authorization", auth());
                         if (enableCrumb){
                             if (crumb == null){
-                                crumb.getCrumb();
+                                crumb = getCrumb();
                             }
                             authorizationBuilder.addHeader(crumb.getCrumbRequestField(),crumb.getCrumb());
                         }
@@ -66,6 +66,9 @@ public class JenkinsClientAsync {
                 .cookieJar(new CookieJar() {
                     @Override
                     public void saveFromResponse(@NotNull HttpUrl httpUrl, @NotNull List<Cookie> list) {
+                        if (list == null){
+                            return;
+                        }
                         cookieStore.put(httpUrl.host(), list);
                     }
 
@@ -95,7 +98,26 @@ public class JenkinsClientAsync {
                 .addHeader("Authorization",auth())
                 .addHeader("Connection","keep-alive")
                 .build();
-        Response response = new OkHttpClient.Builder().build().newCall(request).execute();
+        Response response = new OkHttpClient.Builder()
+                .cookieJar(new CookieJar() {
+                    @Override
+                    public void saveFromResponse(@NotNull HttpUrl httpUrl, @NotNull List<Cookie> list) {
+                        if (list == null){
+                            return;
+                        }
+                        cookieStore.put(httpUrl.host(), list);
+                    }
+
+                    @NotNull
+                    @Override
+                    public List<Cookie> loadForRequest(@NotNull HttpUrl httpUrl) {
+                        List<Cookie> cookies = cookieStore.get(httpUrl.host());
+                        return cookies != null ? cookies : new ArrayList<Cookie>();
+                    }
+                })
+                .build()
+                .newCall(request)
+                .execute();
         if (response.isSuccessful()){
             return JsonUtils.parseObject(response.body().string(),Crumb.class);
         }else {
@@ -173,10 +195,14 @@ public class JenkinsClientAsync {
      */
     public void build(String jobName,DefaultCallback<String> callback){
         String url = jenkinsHost+"job/"+jobName+"/build";
+        HashMap<String, Object> json = Maps.newHashMap();
+        json.put(crumb.getCrumbRequestField(), crumb.getCrumb());
 
-        RequestBody requestBody = new FormBody(Lists.newArrayList(),Lists.newArrayList());
+        RequestBody requestBody = new FormBody(Lists.newArrayList(crumb.getCrumbRequestField(), "json"),
+                Lists.newArrayList(crumb.getCrumb(), JsonUtils.toJsonString(json)));
 
         Request request = new Request.Builder()
+                .addHeader("Content-Type", "application/x-www-form-urlencoded")
                 .post(requestBody)
                 .url(url)
                 .build();
