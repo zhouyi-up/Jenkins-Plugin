@@ -22,8 +22,8 @@ import java.util.List;
 public class JenkinsMain extends JPanel {
 
     JLabel jobText;
-    JBList<String> jbList;
-    DefaultListModel<String> defaultListModel;
+    JBList<JobListItemView> jbList;
+    DefaultListModel<JobListItemView> defaultListModel;
     JenkinsClientAsync jenkinsClientAsync;
 
     public JenkinsMain(JenkinsClientAsync jenkinsClientAsync){
@@ -48,6 +48,7 @@ public class JenkinsMain extends JPanel {
                 jobText.setText(String.valueOf(selectedValue));
             }
         });
+        jbList.setCellRenderer(new JenkinsListCellRenderer());
 
         JBScrollPane jbScrollPane =new JBScrollPane(jbList);
 
@@ -63,9 +64,10 @@ public class JenkinsMain extends JPanel {
         testBtn.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
-                ListModel<String> model = jbList.getModel();
+                ListModel<JobListItemView> model = jbList.getModel();
                 int size = model.getSize() + 1;
-                defaultListModel.addElement("ele-" + size);
+                String name = "ele-" + size;
+                defaultListModel.addElement(new JobListItemView(name));
             }
         });
         jPanel.add(testBtn);
@@ -74,8 +76,8 @@ public class JenkinsMain extends JPanel {
         buildBtn.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
-                String selectedValue = jbList.getSelectedValue();
-                jenkinsClientAsync.build(selectedValue, new DefaultCallback<String>() {
+                JobListItemView selectedValue = jbList.getSelectedValue();
+                jenkinsClientAsync.build(selectedValue.getJobName(), new DefaultCallback<String>() {
                     @Override
                     public void success(String data) {
 
@@ -94,7 +96,7 @@ public class JenkinsMain extends JPanel {
             public void success(JobListEntity data) {
                 List<JobListEntity.JobsBean> jobs = data.getJobs();
                 jobs.forEach(bean -> {
-                    defaultListModel.addElement(bean.getName());
+                    defaultListModel.addElement(new JobListItemView(bean.getName()));
                 });
             }
         });
