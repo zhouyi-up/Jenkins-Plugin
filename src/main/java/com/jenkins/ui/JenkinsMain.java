@@ -1,10 +1,8 @@
 package com.jenkins.ui;
 
 import com.google.common.collect.Maps;
-import com.intellij.icons.AllIcons;
 import com.intellij.ui.components.JBLabel;
 import com.intellij.ui.components.JBScrollPane;
-import com.intellij.ui.table.JBTable;
 import com.intellij.ui.treeStructure.Tree;
 import com.jenkins.client.DefaultCallback;
 import com.jenkins.client.JenkinsClientAsync;
@@ -13,15 +11,10 @@ import com.jenkins.model.JobListEntity;
 
 import javax.swing.*;
 import javax.swing.event.TreeExpansionEvent;
-import javax.swing.event.TreeSelectionEvent;
-import javax.swing.event.TreeSelectionListener;
 import javax.swing.event.TreeWillExpandListener;
-import javax.swing.tree.ExpandVetoException;
 import javax.swing.tree.TreePath;
 import javax.swing.tree.TreeSelectionModel;
 import java.awt.*;
-import java.awt.event.ActionEvent;
-import java.awt.event.ActionListener;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
 import java.util.List;
@@ -33,12 +26,13 @@ import java.util.stream.Collectors;
  */
 public class JenkinsMain extends JPanel {
 
+    public static final int CLICK_COUNT = 2;
     JBLabel jobText;
     JenkinsClientAsync jenkinsClientAsync;
     JenkinsRootTreeNode rootNode;
     JenkinsBuildView jenkinsBuildView;
 
-    private Map<String, JobEntity> JOB_MAP = Maps.newConcurrentMap();
+    private final Map<String, JobEntity> jobMap = Maps.newConcurrentMap();
 
     public JenkinsMain(JenkinsClientAsync jenkinsClientAsync){
         this.jenkinsClientAsync = jenkinsClientAsync;
@@ -53,19 +47,16 @@ public class JenkinsMain extends JPanel {
 
         jTree.getSelectionModel().setSelectionMode
                 (TreeSelectionModel.SINGLE_TREE_SELECTION);
-        jTree.addTreeSelectionListener(new TreeSelectionListener() {
-            @Override
-            public void valueChanged(TreeSelectionEvent e) {
-                Object lastSelectedPathComponent = jTree.getLastSelectedPathComponent();
-                if (lastSelectedPathComponent == null){
-                    return;
-                }
+        jTree.addTreeSelectionListener(e -> {
+            Object lastSelectedPathComponent = jTree.getLastSelectedPathComponent();
+            if (lastSelectedPathComponent == null){
+                System.out.println("GG");
             }
         });
 
         jTree.addTreeWillExpandListener(new TreeWillExpandListener() {
             @Override
-            public void treeWillExpand(TreeExpansionEvent event) throws ExpandVetoException {
+            public void treeWillExpand(TreeExpansionEvent event) {
                 TreePath path = event.getPath();
                 if (path == null){
                     return;
@@ -80,7 +71,7 @@ public class JenkinsMain extends JPanel {
             }
 
             @Override
-            public void treeWillCollapse(TreeExpansionEvent event) throws ExpandVetoException {
+            public void treeWillCollapse(TreeExpansionEvent event) {
 
             }
         });
@@ -101,8 +92,8 @@ public class JenkinsMain extends JPanel {
                 if (lastSelectedPathComponent instanceof JenkinsBuildTreeNode){
                     JenkinsBuildTreeNode selectNode = (JenkinsBuildTreeNode) lastSelectedPathComponent;
                     String jobName = selectNode.getJobName();
-                    if (e.getClickCount() >= 2){
-                        JobEntity jobBean = JOB_MAP.get(jobName);
+                    if (e.getClickCount() >= CLICK_COUNT){
+                        JobEntity jobBean = jobMap.get(jobName);
                         if (jobBean == null){
                             return;
                         }
@@ -114,14 +105,14 @@ public class JenkinsMain extends JPanel {
                             isParam = false;
                         }
                         List<JobEntity.PropertyBean> collect = property.stream()
-                                .filter(item -> item.get_class().equals("hudson.model.ParametersDefinitionProperty"))
+                                .filter(item -> "hudson.model.ParametersDefinitionProperty".equals(item.get_class()))
                                 .collect(Collectors.toList());
                         if (collect.isEmpty()){
                             isParam = false;
                         }
 
                         if (!isParam){
-                            jenkinsClientAsync.build(jobName, new DefaultCallback<String>() {
+                            jenkinsClientAsync.build(jobName, new DefaultCallback<>() {
                                 @Override
                                 public void success(String data) {
                                     System.out.println("build success");
@@ -138,10 +129,10 @@ public class JenkinsMain extends JPanel {
                     JenkinsTreeNode jenkinsTreeNode = (JenkinsTreeNode) lastSelectedPathComponent;
                     String jobName = jenkinsTreeNode.getJobName();
 
-                    jenkinsClientAsync.jobInfo(jobName, new DefaultCallback<JobEntity>() {
+                    jenkinsClientAsync.jobInfo(jobName, new DefaultCallback<>() {
                         @Override
                         public void success(JobEntity data) {
-                            JOB_MAP.put(data.getName(), data);
+                            jobMap.put(data.getName(), data);
                         }
                     });
                 }
@@ -153,14 +144,14 @@ public class JenkinsMain extends JPanel {
         JBScrollPane jbScrollPane = new JBScrollPane(jTree);
         add(jbScrollPane, BorderLayout.CENTER);
 
-//        initBtnPanelView();
+        initBtnPanelView();
         initData();
 
     }
 
     /**
      * 添加一个job任务节点
-     * @param jobName
+     * @param jobName 任务名称
      */
     private void addNode(String jobName){
         JenkinsTreeNode jenkinsTreeNode = new JenkinsTreeNode(jobName);
@@ -173,14 +164,11 @@ public class JenkinsMain extends JPanel {
         jPanel.add(jobText);
 
         JButton testBtn = new JButton("TestBtn");
-        testBtn.addActionListener(new ActionListener() {
-            @Override
-            public void actionPerformed(ActionEvent e) {
-                System.out.println("TestBtn");
-                int size = rootNode.getChildCount() + 1;
-                String name = "ele-" + size;
-                addNode(name);
-            }
+        testBtn.addActionListener(e -> {
+            System.out.println("TestBtn");
+            int size = rootNode.getChildCount() + 1;
+            String name = "ele-" + size;
+            addNode(name);
         });
         jPanel.add(testBtn);
 
@@ -188,22 +176,22 @@ public class JenkinsMain extends JPanel {
     }
 
     private void initData(){
-        jenkinsClientAsync.jobList(new DefaultCallback<JobListEntity>() {
+        jenkinsClientAsync.jobList(new DefaultCallback<>() {
             @Override
             public void success(JobListEntity data) {
                 List<JobListEntity.JobsBean> jobs = data.getJobs();
                 jobs.forEach(bean -> {
                     rootNode.add(new JenkinsTreeNode(bean.getName()));
-                    JOB_MAP.put(bean.getName(), new JobEntity());
+                    jobMap.put(bean.getName(), new JobEntity());
                 });
             }
         });
     }
 
     private void initJobInfo(){
-        JOB_MAP.entrySet().forEach(entry -> {
+        jobMap.entrySet().forEach(entry -> {
             String jobName = entry.getKey();
-            jenkinsClientAsync.jobInfo(jobName, new DefaultCallback<JobEntity>() {
+            jenkinsClientAsync.jobInfo(jobName, new DefaultCallback<>() {
                 @Override
                 public void success(JobEntity data) {
                     entry.setValue(data);
