@@ -12,6 +12,8 @@ import com.jenkins.model.JobListEntity;
 import javax.swing.*;
 import javax.swing.event.TreeExpansionEvent;
 import javax.swing.event.TreeWillExpandListener;
+import javax.swing.tree.DefaultTreeModel;
+import javax.swing.tree.TreeModel;
 import javax.swing.tree.TreePath;
 import javax.swing.tree.TreeSelectionModel;
 import java.awt.*;
@@ -32,6 +34,7 @@ public class JenkinsMain extends JPanel {
     JenkinsRootTreeNode rootNode;
     JenkinsBuildView jenkinsBuildView;
     Tree jTree;
+    DefaultTreeModel treeModel;
 
     private final Map<String, JobEntity> jobMap = Maps.newConcurrentMap();
 
@@ -43,6 +46,7 @@ public class JenkinsMain extends JPanel {
         rootNode = new JenkinsRootTreeNode();
 
         jTree = new Tree(rootNode);
+        treeModel = (DefaultTreeModel) jTree.getModel();
 
         jTree.setCellRenderer(new JenkinsTreeCellRenderer());
 
@@ -156,7 +160,9 @@ public class JenkinsMain extends JPanel {
      */
     private void addNode(String jobName){
         JenkinsTreeNode jenkinsTreeNode = new JenkinsTreeNode(jobName);
-        rootNode.add(jenkinsTreeNode);
+        jenkinsTreeNode.setAllowsChildren(true);
+        treeModel.insertNodeInto(jenkinsTreeNode,rootNode, rootNode.getChildCount());
+        jTree.scrollPathToVisible(new TreePath(jenkinsTreeNode.getPath()));
     }
 
     private void initBtnPanelView(){
