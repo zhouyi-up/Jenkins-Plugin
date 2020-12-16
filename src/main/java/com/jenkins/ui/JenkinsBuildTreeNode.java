@@ -5,16 +5,13 @@ import javax.swing.tree.DefaultMutableTreeNode;
 /**
  * @author liujun
  */
-public class JenkinsTreeNode extends DefaultMutableTreeNode {
+public class JenkinsBuildTreeNode extends DefaultMutableTreeNode {
 
     private String jobName;
 
-    public JenkinsTreeNode(String jobName){
-        super(jobName);
-
+    public JenkinsBuildTreeNode(String jobName){
+        super("Build");
         this.jobName = jobName;
-        JenkinsBuildTreeNode build = new JenkinsBuildTreeNode(jobName);
-        add(build);
     }
 
     public String getJobName(){

@@ -48,119 +48,119 @@ public class BuildWindow {
     public BuildWindow(JenkinsPropertiesComponent jenkinsPropertiesComponent) {
         this.jenkinsPropertiesComponent = jenkinsPropertiesComponent;
 
-//        String host = this.jenkinsPropertiesComponent.getHost();
+        String host = this.jenkinsPropertiesComponent.getHost();
 
-//        clientAsync = new JenkinsClientAsync(
-//                host,
-//                this.jenkinsPropertiesComponent.getUser(),
-//                this.jenkinsPropertiesComponent.getPwd(),
-//                this.jenkinsPropertiesComponent.getCrumbEnable()
-//        );
+        clientAsync = new JenkinsClientAsync(
+                host,
+                this.jenkinsPropertiesComponent.getUser(),
+                this.jenkinsPropertiesComponent.getPwd(),
+                this.jenkinsPropertiesComponent.getCrumbEnable()
+        );
 
-//        init();
+        init();
 
-//        buildBtn.addActionListener(new ActionListener() {
-//            /**
-//             * Invoked when an action occurs.
-//             *
-//             * @param e
-//             */
-//            @Override
-//            public void actionPerformed(ActionEvent e) {
-//                jenkinsDisplayText.setText("Waiting...");
-//                ParamTableModel<String> paramTableModel = (ParamTableModel<String>) buildParamTable.getModel();
-//                int columnCount = paramTableModel.getColumnCount();
-//                int rowCount = paramTableModel.getRowCount();
-//
-//                String[][] dataArr = new String[rowCount][columnCount];
-//                for (int i = 0; i < columnCount; i++) {
-//                    for (int j = 0; j < rowCount; j++) {
-//                        String valueAt = String.valueOf(paramTableModel.getValueAt(j, i));
-//                        dataArr[j][i] = valueAt;
-//                    }
-//                }
-//
-//                Map<Object, Object> paramMap = ArrayUtils.toMap(dataArr);
-//
-//                if (paramMap == null || paramMap.isEmpty()){
-//                    clientAsync.build(selectItem, new DefaultCallback() {
-//                        @Override
-//                        public void success(Object data) {
-//                            buildSuccess(Color.BLUE, "Build Success !");
-//                        }
-//
-//                        @Override
-//                        public void error(Exception exception) {
-//                            buildSuccess(Color.RED, "Build error !");
-//
-//                            Notification notification = new Notification("jenkins.ui.id",
-//                                    AllIcons.Actions.Forward, NotificationType.WARNING);
-//                            notification.setContent(exception.getMessage());
-//                            notification.setTitle("Build Error ");
-//                            Notifications.Bus.notify(notification);
-//                        }
-//                    });
-//                }else {
-//                    BuildParam buildParam = new BuildParam();
-//                    buildParam.setJobName(selectItem);
-//                    buildParam.addParamForObject(paramMap);
-//
-//                    clientAsync.build(buildParam, new DefaultCallback() {
-//                        @Override
-//                        public void success(Object data) {
-//                            buildSuccess(Color.BLUE, "Build Success !");
-//                        }
-//
-//                        @Override
-//                        public void error(Exception exception) {
-//                            buildSuccess(Color.RED, "Build error !");
-//
-//                            Notification notification = new Notification("jenkins.ui.id",
-//                                    AllIcons.Actions.Forward, NotificationType.WARNING);
-//                            notification.setContent(exception.getMessage());
-//                            notification.setTitle("Build Error ");
-//                            Notifications.Bus.notify(notification);
-//                        }
-//                    });
-//                }
-//            }
-//
-//
-//        });
-//        restParamBtn.addActionListener(new ActionListener() {
-//            /**
-//             * Invoked when an action occurs.
-//             *
-//             * @param e
-//             */
-//            @Override
-//            public void actionPerformed(ActionEvent e) {
-//                initParamTable();
-//            }
-//        });
-//        jobListBox.addItemListener(new ItemListener() {
-//            /**
-//             * Invoked when an item has been selected or deselected by the user.
-//             * The code written for this method performs the operations
-//             * that need to occur when an item is selected (or deselected).
-//             *
-//             * @param e
-//             */
-//            @Override
-//            public void itemStateChanged(ItemEvent e) {
-//                int stateChange = e.getStateChange();
-//                if (ItemEvent.SELECTED == stateChange){
-//                    selectItem = e.getItem().toString();
-//                    initParamTable();
-//                }
-//            }
-//        });
-//        refreshBtn.addActionListener(new ActionListener() {
-//            @Override
-//            public void actionPerformed(ActionEvent e) {
-//                init();
-//            }
-//        });
+        buildBtn.addActionListener(new ActionListener() {
+            /**
+             * Invoked when an action occurs.
+             *
+             * @param e
+             */
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                jenkinsDisplayText.setText("Waiting...");
+                ParamTableModel<String> paramTableModel = (ParamTableModel<String>) buildParamTable.getModel();
+                int columnCount = paramTableModel.getColumnCount();
+                int rowCount = paramTableModel.getRowCount();
+
+                String[][] dataArr = new String[rowCount][columnCount];
+                for (int i = 0; i < columnCount; i++) {
+                    for (int j = 0; j < rowCount; j++) {
+                        String valueAt = String.valueOf(paramTableModel.getValueAt(j, i));
+                        dataArr[j][i] = valueAt;
+                    }
+                }
+
+                Map<Object, Object> paramMap = ArrayUtils.toMap(dataArr);
+
+                if (paramMap == null || paramMap.isEmpty()){
+                    clientAsync.build(selectItem, new DefaultCallback() {
+                        @Override
+                        public void success(Object data) {
+                            buildSuccess(Color.BLUE, "Build Success !");
+                        }
+
+                        @Override
+                        public void error(Exception exception) {
+                            buildSuccess(Color.RED, "Build error !");
+
+                            Notification notification = new Notification("jenkins.ui.id",
+                                    AllIcons.Actions.Forward, NotificationType.WARNING);
+                            notification.setContent(exception.getMessage());
+                            notification.setTitle("Build Error ");
+                            Notifications.Bus.notify(notification);
+                        }
+                    });
+                }else {
+                    BuildParam buildParam = new BuildParam();
+                    buildParam.setJobName(selectItem);
+                    buildParam.addParamForObject(paramMap);
+
+                    clientAsync.build(buildParam, new DefaultCallback() {
+                        @Override
+                        public void success(Object data) {
+                            buildSuccess(Color.BLUE, "Build Success !");
+                        }
+
+                        @Override
+                        public void error(Exception exception) {
+                            buildSuccess(Color.RED, "Build error !");
+
+                            Notification notification = new Notification("jenkins.ui.id",
+                                    AllIcons.Actions.Forward, NotificationType.WARNING);
+                            notification.setContent(exception.getMessage());
+                            notification.setTitle("Build Error ");
+                            Notifications.Bus.notify(notification);
+                        }
+                    });
+                }
+            }
+
+
+        });
+        restParamBtn.addActionListener(new ActionListener() {
+            /**
+             * Invoked when an action occurs.
+             *
+             * @param e
+             */
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                initParamTable();
+            }
+        });
+        jobListBox.addItemListener(new ItemListener() {
+            /**
+             * Invoked when an item has been selected or deselected by the user.
+             * The code written for this method performs the operations
+             * that need to occur when an item is selected (or deselected).
+             *
+             * @param e
+             */
+            @Override
+            public void itemStateChanged(ItemEvent e) {
+                int stateChange = e.getStateChange();
+                if (ItemEvent.SELECTED == stateChange){
+                    selectItem = e.getItem().toString();
+                    initParamTable();
+                }
+            }
+        });
+        refreshBtn.addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                init();
+            }
+        });
     }
     private void buildSuccess(Color blue, String s) {
         jenkinsDisplayText.setForeground(blue);

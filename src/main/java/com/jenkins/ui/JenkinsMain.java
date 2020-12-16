@@ -1,5 +1,6 @@
 package com.jenkins.ui;
 
+import com.google.common.collect.Maps;
 import com.intellij.icons.AllIcons;
 import com.intellij.ui.components.JBLabel;
 import com.intellij.ui.components.JBScrollPane;
@@ -7,21 +8,25 @@ import com.intellij.ui.table.JBTable;
 import com.intellij.ui.treeStructure.Tree;
 import com.jenkins.client.DefaultCallback;
 import com.jenkins.client.JenkinsClientAsync;
+import com.jenkins.model.JobEntity;
 import com.jenkins.model.JobListEntity;
 
 import javax.swing.*;
+import javax.swing.event.TreeExpansionEvent;
 import javax.swing.event.TreeSelectionEvent;
 import javax.swing.event.TreeSelectionListener;
-import javax.swing.table.DefaultTableModel;
-import javax.swing.table.TableModel;
-import javax.swing.tree.DefaultMutableTreeNode;
-import javax.swing.tree.DefaultTreeCellRenderer;
+import javax.swing.event.TreeWillExpandListener;
+import javax.swing.tree.ExpandVetoException;
+import javax.swing.tree.TreePath;
 import javax.swing.tree.TreeSelectionModel;
 import java.awt.*;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import java.awt.event.MouseAdapter;
+import java.awt.event.MouseEvent;
 import java.util.List;
-import java.util.Vector;
+import java.util.Map;
+import java.util.stream.Collectors;
 
 /**
  * @author corel
@@ -29,75 +34,137 @@ import java.util.Vector;
 public class JenkinsMain extends JPanel {
 
     JBLabel jobText;
-    JBTable jbTable;
-    DefaultTableModel defaultTableModel;
     JenkinsClientAsync jenkinsClientAsync;
-    DefaultMutableTreeNode rootNode;
+    JenkinsRootTreeNode rootNode;
+    JenkinsBuildView jenkinsBuildView;
+
+    private Map<String, JobEntity> JOB_MAP = Maps.newConcurrentMap();
 
     public JenkinsMain(JenkinsClientAsync jenkinsClientAsync){
         this.jenkinsClientAsync = jenkinsClientAsync;
 
         setLayout(new BorderLayout());
 
-
-        rootNode = new DefaultMutableTreeNode("Jenkins");
+        rootNode = new JenkinsRootTreeNode();
 
         Tree jTree = new Tree(rootNode);
-        DefaultTreeCellRenderer defaultTreeCellRenderer = new DefaultTreeCellRenderer();
-        defaultTreeCellRenderer.setLeafIcon(AllIcons.Logo_welcomeScreen);
-        defaultTreeCellRenderer.setClosedIcon(AllIcons.Nodes.AbstractClass);
-        defaultTreeCellRenderer.setOpenIcon(AllIcons.Nodes.Aspect);
-        jTree.setCellRenderer(defaultTreeCellRenderer);
+
+        jTree.setCellRenderer(new JenkinsTreeCellRenderer());
 
         jTree.getSelectionModel().setSelectionMode
                 (TreeSelectionModel.SINGLE_TREE_SELECTION);
         jTree.addTreeSelectionListener(new TreeSelectionListener() {
             @Override
             public void valueChanged(TreeSelectionEvent e) {
-                JenkinsTreeNode jenkinsTreeNode = (JenkinsTreeNode) jTree.getLastSelectedPathComponent();
-                if (jenkinsTreeNode == null){
+                Object lastSelectedPathComponent = jTree.getLastSelectedPathComponent();
+                if (lastSelectedPathComponent == null){
                     return;
                 }
-                System.out.println(jenkinsTreeNode.getJobName());
+            }
+        });
+
+        jTree.addTreeWillExpandListener(new TreeWillExpandListener() {
+            @Override
+            public void treeWillExpand(TreeExpansionEvent event) throws ExpandVetoException {
+                TreePath path = event.getPath();
+                if (path == null){
+                    return;
+                }
+                Object lastPathComponent = path.getLastPathComponent();
+                if (lastPathComponent == null){
+                    return;
+                }
+                if (lastPathComponent instanceof JenkinsRootTreeNode){
+                    initJobInfo();
+                }
+            }
+
+            @Override
+            public void treeWillCollapse(TreeExpansionEvent event) throws ExpandVetoException {
 
             }
         });
 
+        MouseAdapter mouseAdapter = new MouseAdapter() {
+            @Override
+            public void mouseClicked(MouseEvent e) {
+                Component deepestRendererComponentAt = jTree.getDeepestRendererComponentAt(e.getX(), e.getY());
+                if (deepestRendererComponentAt == null){
+                    return;
+                }
+
+                Object lastSelectedPathComponent = jTree.getLastSelectedPathComponent();
+                if (lastSelectedPathComponent == null){
+                    return;
+                }
+
+                if (lastSelectedPathComponent instanceof JenkinsBuildTreeNode){
+                    JenkinsBuildTreeNode selectNode = (JenkinsBuildTreeNode) lastSelectedPathComponent;
+                    String jobName = selectNode.getJobName();
+                    if (e.getClickCount() >= 2){
+                        JobEntity jobBean = JOB_MAP.get(jobName);
+                        if (jobBean == null){
+                            return;
+                        }
+
+                        boolean isParam = true;
+
+                        List<JobEntity.PropertyBean> property = jobBean.getProperty();
+                        if (property.isEmpty()){
+                            isParam = false;
+                        }
+                        List<JobEntity.PropertyBean> collect = property.stream()
+                                .filter(item -> item.get_class().equals("hudson.model.ParametersDefinitionProperty"))
+                                .collect(Collectors.toList());
+                        if (collect.isEmpty()){
+                            isParam = false;
+                        }
+
+                        if (!isParam){
+                            jenkinsClientAsync.build(jobName, new DefaultCallback<String>() {
+                                @Override
+                                public void success(String data) {
+                                    System.out.println("build success");
+                                }
+                            });
+                            return;
+                        }
+                        jenkinsBuildView = null;
+                        jenkinsBuildView = new JenkinsBuildView(jenkinsClientAsync, jobBean);
+                    }
+                }
+
+                if (lastSelectedPathComponent instanceof JenkinsTreeNode){
+                    JenkinsTreeNode jenkinsTreeNode = (JenkinsTreeNode) lastSelectedPathComponent;
+                    String jobName = jenkinsTreeNode.getJobName();
+
+                    jenkinsClientAsync.jobInfo(jobName, new DefaultCallback<JobEntity>() {
+                        @Override
+                        public void success(JobEntity data) {
+                            JOB_MAP.put(data.getName(), data);
+                        }
+                    });
+                }
+            }
+        };
+
+        jTree.addMouseListener(mouseAdapter);
+
         JBScrollPane jbScrollPane = new JBScrollPane(jTree);
         add(jbScrollPane, BorderLayout.CENTER);
 
-
-
-//        initJobTableView();
-
-//        initBtnPanelView();
-//        initJobListView();
+        initBtnPanelView();
         initData();
+
     }
 
-    private void initJobTableView(){
-
-        Vector<String> title = new Vector<>();
-        title.add("任务");
-        title.add("操作");
-
-        Vector<Vector> data = new Vector<>();
-
-        Vector<String> data1 = new Vector<>();
-        data1.add("Test");
-        data1.add("----");
-
-        data.add(data1);
-
-        defaultTableModel = new DefaultTableModel(data, title);
-
-
-
-        jbTable = new JBTable(defaultTableModel);
-
-        JBScrollPane jbScrollPane = new JBScrollPane(jbTable);
-
-        add(jbScrollPane, BorderLayout.CENTER);
+    /**
+     * 添加一个job任务节点
+     * @param jobName
+     */
+    private void addNode(String jobName){
+        JenkinsTreeNode jenkinsTreeNode = new JenkinsTreeNode(jobName);
+        rootNode.add(jenkinsTreeNode);
     }
 
     private void initBtnPanelView(){
@@ -109,29 +176,13 @@ public class JenkinsMain extends JPanel {
         testBtn.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
-                TableModel model = jbTable.getModel();
-                int size = model.getRowCount() + 1;
+                System.out.println("TestBtn");
+                int size = rootNode.getChildCount() + 1;
                 String name = "ele-" + size;
-                defaultTableModel.addRow(new String[]{name});
+                addNode(name);
             }
         });
         jPanel.add(testBtn);
-
-        JButton buildBtn = new JButton("Build");
-        buildBtn.addActionListener(new ActionListener() {
-            @Override
-            public void actionPerformed(ActionEvent e) {
-                int selectedRow = jbTable.getSelectedRow();
-                Object valueAt = defaultTableModel.getValueAt(selectedRow, 0);
-                jenkinsClientAsync.build(valueAt.toString(), new DefaultCallback<String>() {
-                    @Override
-                    public void success(String data) {
-
-                    }
-                });
-            }
-        });
-        jPanel.add(buildBtn);
 
         add(jPanel, BorderLayout.NORTH);
     }
@@ -143,8 +194,21 @@ public class JenkinsMain extends JPanel {
                 List<JobListEntity.JobsBean> jobs = data.getJobs();
                 jobs.forEach(bean -> {
                     rootNode.add(new JenkinsTreeNode(bean.getName()));
+                    JOB_MAP.put(bean.getName(), new JobEntity());
                 });
             }
+        });
+    }
+
+    private void initJobInfo(){
+        JOB_MAP.entrySet().forEach(entry -> {
+            String jobName = entry.getKey();
+            jenkinsClientAsync.jobInfo(jobName, new DefaultCallback<JobEntity>() {
+                @Override
+                public void success(JobEntity data) {
+                    entry.setValue(data);
+                }
+            });
         });
     }
 }
