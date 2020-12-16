@@ -31,6 +31,7 @@ public class JenkinsMain extends JPanel {
     JenkinsClientAsync jenkinsClientAsync;
     JenkinsRootTreeNode rootNode;
     JenkinsBuildView jenkinsBuildView;
+    Tree jTree;
 
     private final Map<String, JobEntity> jobMap = Maps.newConcurrentMap();
 
@@ -41,7 +42,7 @@ public class JenkinsMain extends JPanel {
 
         rootNode = new JenkinsRootTreeNode();
 
-        Tree jTree = new Tree(rootNode);
+        jTree = new Tree(rootNode);
 
         jTree.setCellRenderer(new JenkinsTreeCellRenderer());
 
