@@ -153,7 +153,7 @@ public class JenkinsMain extends JPanel {
         JBScrollPane jbScrollPane = new JBScrollPane(jTree);
         add(jbScrollPane, BorderLayout.CENTER);
 
-        initBtnPanelView();
+//        initBtnPanelView();
         initData();
 
     }
