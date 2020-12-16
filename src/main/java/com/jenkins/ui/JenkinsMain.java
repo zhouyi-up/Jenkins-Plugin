@@ -125,7 +125,6 @@ public class JenkinsMain extends JPanel {
                             });
                             return;
                         }
-                        jenkinsBuildView = null;
                         jenkinsBuildView = new JenkinsBuildView(jenkinsClientAsync, jobBean);
                     }
                 }
@@ -205,5 +204,11 @@ public class JenkinsMain extends JPanel {
                 }
             });
         });
+    }
+
+    public void closeBuildParamView(){
+        if (jenkinsBuildView != null){
+            jenkinsBuildView.dispose();
+        }
     }
 }

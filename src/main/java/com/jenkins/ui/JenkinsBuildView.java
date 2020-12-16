@@ -33,6 +33,7 @@ public class JenkinsBuildView extends JFrame {
 
     private JenkinsClientAsync jenkinsClientAsync;
     private JobEntity jobEntity;
+
     JBPanel jbPanel;
     JBTable jbTable;
     DefaultTableModel defaultTableModel;
@@ -41,6 +42,9 @@ public class JenkinsBuildView extends JFrame {
     public JenkinsBuildView(JenkinsClientAsync jenkinsClientAsync, JobEntity jobEntity){
         this.jenkinsClientAsync = jenkinsClientAsync;
         this.jobEntity = jobEntity;
+
+        setDefaultCloseOperation(WindowConstants.DISPOSE_ON_CLOSE);
+
         title.add("Param");
         title.add("Value");
 
@@ -54,7 +58,7 @@ public class JenkinsBuildView extends JFrame {
         setSize(300,300);
         setLocationRelativeTo(null);
         setVisible(true);
-//        setDefaultCloseOperation(WindowConstants.DISPOSE_ON_CLOSE);
+
     }
 
     @Override
