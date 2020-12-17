@@ -3,10 +3,14 @@ package com.jenkins.client;
 import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
 import com.intellij.diagnostic.LoadingState;
+import com.intellij.execution.RunManager;
 import com.intellij.icons.AllIcons;
 import com.intellij.notification.Notification;
 import com.intellij.notification.NotificationType;
 import com.intellij.notification.Notifications;
+import com.intellij.openapi.progress.ProgressIndicator;
+import com.intellij.openapi.progress.ProgressManager;
+import com.intellij.openapi.progress.Task;
 import com.intellij.openapi.ui.LoadingDecorator;
 import com.jenkins.JenkinsPropertiesComponent;
 import com.jenkins.config.HttpLogger;
@@ -146,7 +150,6 @@ public class JenkinsClientAsync {
         Request request = new Request.Builder()
                 .url(url)
                 .build();
-
         client.newCall(request).enqueue(callback);
     }
 

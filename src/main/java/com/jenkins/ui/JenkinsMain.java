@@ -1,15 +1,26 @@
 package com.jenkins.ui;
 
 import com.google.common.collect.Maps;
+import com.intellij.openapi.application.ModalityState;
+import com.intellij.openapi.progress.ProcessCanceledException;
+import com.intellij.openapi.progress.ProgressIndicator;
+import com.intellij.openapi.progress.ProgressManager;
+import com.intellij.openapi.progress.Task;
+import com.intellij.openapi.project.Project;
 import com.intellij.openapi.ui.popup.JBPopupFactory;
+import com.intellij.openapi.util.NlsContexts;
 import com.intellij.ui.components.JBLabel;
 import com.intellij.ui.components.JBScrollPane;
 import com.intellij.ui.treeStructure.Tree;
 import com.jenkins.client.BuildParam;
 import com.jenkins.client.DefaultCallback;
 import com.jenkins.client.JenkinsClientAsync;
+import com.jenkins.compent.JenkinsComponent;
+import com.jenkins.compent.JenkinsSettingDataComponent;
 import com.jenkins.model.JobEntity;
 import com.jenkins.model.JobListEntity;
+import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
 
 import javax.swing.*;
 import javax.swing.event.TreeExpansionEvent;
@@ -31,8 +42,11 @@ import java.util.stream.Collectors;
 public class JenkinsMain extends JPanel {
 
     public static final int CLICK_COUNT = 2;
+
+    private Project project;
+    private JenkinsComponent jenkinsComponent;
+
     JBLabel jobText;
-    JenkinsClientAsync jenkinsClientAsync;
     JenkinsRootTreeNode rootNode;
     JenkinsBuildView jenkinsBuildView;
     Tree jTree;
@@ -40,8 +54,8 @@ public class JenkinsMain extends JPanel {
 
     private final Map<String, JobEntity> jobMap = Maps.newConcurrentMap();
 
-    public JenkinsMain(JenkinsClientAsync jenkinsClientAsync){
-        this.jenkinsClientAsync = jenkinsClientAsync;
+    public JenkinsMain(JenkinsClientAsync jenkinsClientAsync, Project project){
+        this.jenkinsComponent = JenkinsComponent.getInstance();
 
         setLayout(new BorderLayout());
 
@@ -119,12 +133,7 @@ public class JenkinsMain extends JPanel {
                         }
 
                         if (!isParam){
-                            jenkinsClientAsync.build(jobName, new DefaultCallback<>() {
-                                @Override
-                                public void success(String data) {
-                                    System.out.println("build success");
-                                }
-                            });
+                            jenkinsComponent.build(jobName, data -> {}, ()->{});
                             return;
                         }
                         jenkinsBuildView = new JenkinsBuildView(jobBean);
@@ -136,16 +145,7 @@ public class JenkinsMain extends JPanel {
                             buildParam.setJobName(jobBean.getName());
                             buildParam.addParamForObject(buildParamMap);
 
-                            jenkinsClientAsync.build(buildParam, new DefaultCallback() {
-                                @Override
-                                public void success(Object data) {
-
-                                }
-                                @Override
-                                public void error(Exception exception) {
-
-                                }
-                            });
+                            jenkinsComponent.build(buildParam,data -> {}, ()->{});
                         }
                     }
                 }
@@ -154,12 +154,9 @@ public class JenkinsMain extends JPanel {
                     JenkinsTreeNode jenkinsTreeNode = (JenkinsTreeNode) lastSelectedPathComponent;
                     String jobName = jenkinsTreeNode.getJobName();
 
-                    jenkinsClientAsync.jobInfo(jobName, new DefaultCallback<>() {
-                        @Override
-                        public void success(JobEntity data) {
-                            jobMap.put(data.getName(), data);
-                        }
-                    });
+                    jenkinsComponent.jobInfo(jobName, data -> {
+                        jobMap.put(data.getName(), data);
+                    }, ()->{});
                 }
             }
         };
@@ -192,10 +189,10 @@ public class JenkinsMain extends JPanel {
 
         JButton testBtn = new JButton("TestBtn");
         testBtn.addActionListener(e -> {
-            System.out.println("TestBtn");
-            int size = rootNode.getChildCount() + 1;
-            String name = "ele-" + size;
-            addNode(name);
+//            int size = rootNode.getChildCount() + 1;
+//            String name = "ele-" + size;
+//            addNode(name);
+
         });
         jPanel.add(testBtn);
 
@@ -203,27 +200,19 @@ public class JenkinsMain extends JPanel {
     }
 
     private void initData(){
-        jenkinsClientAsync.jobList(new DefaultCallback<>() {
-            @Override
-            public void success(JobListEntity data) {
-                List<JobListEntity.JobsBean> jobs = data.getJobs();
-                jobs.forEach(bean -> {
-                    rootNode.add(new JenkinsTreeNode(bean.getName()));
-                    jobMap.put(bean.getName(), new JobEntity());
-                });
-            }
-        });
+        jenkinsComponent.jobList(data -> {
+            List<JobListEntity.JobsBean> jobs = data.getJobs();
+            jobs.forEach(bean -> {
+                rootNode.add(new JenkinsTreeNode(bean.getName()));
+                jobMap.put(bean.getName(), new JobEntity());
+            });
+        }, () -> {});
     }
 
     private void initJobInfo(){
         jobMap.entrySet().forEach(entry -> {
             String jobName = entry.getKey();
-            jenkinsClientAsync.jobInfo(jobName, new DefaultCallback<>() {
-                @Override
-                public void success(JobEntity data) {
-                    entry.setValue(data);
-                }
-            });
+            jenkinsComponent.jobInfo(jobName, entry::setValue, () -> {});
         });
     }
 }
