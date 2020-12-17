@@ -21,7 +21,7 @@
         <toolWindow id="Jenkins" anchor="left" secondary="false" icon="/image/jenkins_icon.png"
                     factoryClass="com.jenkins.JenkinsToolFactory"/>
         <projectConfigurable instance="com.jenkins.windows.SettingWindow"/>
-        <notificationGroup displayType="BALLOON" id="jenkins.ui.id"/>
+        <notificationGroup id="Jenkins Group" displayType="BALLOON"/>
     </extensions>
 
     <actions>

@@ -41,36 +41,29 @@ public class JenkinsComponent {
 
     public void build(String jobName, JenkinsSuccess<String> jenkinsSuccess, JenkinsError jenkinsError){
         run(() -> {
-            jenkinsClientAsync.build(jobName, new DefaultCallback<>() {
-                @Override
-                public void success(String data) {
-                    jenkinsSuccess.success(data);
-                }
-
-                @Override
-                public void error(Exception exception) {
-                    super.error(exception);
-                    jenkinsError.error();
-                }
-            });
+            jenkinsClientAsync.build(jobName, getBuildCallback(jenkinsSuccess, jenkinsError));
         });
+    }
+
+    @NotNull
+    private DefaultCallback<String> getBuildCallback(JenkinsSuccess<String> jenkinsSuccess, JenkinsError jenkinsError) {
+        return new DefaultCallback<>() {
+            @Override
+            public void success(String data) {
+                jenkinsSuccess.success(data);
+            }
+
+            @Override
+            public void error(Exception exception) {
+                super.error(exception);
+                jenkinsError.error();
+            }
+        };
     }
 
     public void build(BuildParam buildParam, JenkinsSuccess<String> jenkinsSuccess, JenkinsError jenkinsError){
         run(() -> {
-
-            jenkinsClientAsync.build(buildParam, new DefaultCallback<>() {
-                @Override
-                public void success(String data) {
-                    jenkinsSuccess.success(data);
-                }
-
-                @Override
-                public void error(Exception exception) {
-                    super.error(exception);
-                    jenkinsError.error();
-                }
-            });
+            jenkinsClientAsync.build(buildParam, getBuildCallback(jenkinsSuccess, jenkinsError));
         });
     }
 
