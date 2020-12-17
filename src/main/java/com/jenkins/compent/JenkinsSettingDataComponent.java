@@ -5,6 +5,7 @@ import com.intellij.credentialStore.CredentialAttributesKt;
 import com.intellij.credentialStore.Credentials;
 import com.intellij.ide.passwordSafe.PasswordSafe;
 import com.intellij.ide.util.PropertiesComponent;
+import org.apache.commons.lang3.StringUtils;
 
 /**
  * @author liujun
@@ -34,7 +35,8 @@ public class JenkinsSettingDataComponent {
     }
 
     public String getHost(){
-        return propertiesComponent.getValue(JENKINS_HOST);
+        String value = propertiesComponent.getValue(JENKINS_HOST);
+        return StringUtils.isEmpty(value)?"http://127.0.0.1:8080/":value;
     }
 
     public void saveUsername(String username){
@@ -42,7 +44,8 @@ public class JenkinsSettingDataComponent {
     }
 
     public String getUsername(){
-        return propertiesComponent.getValue(JENKINS_USERNAME);
+        String value = propertiesComponent.getValue(JENKINS_USERNAME);
+        return StringUtils.isEmpty(value)?"admin": value;
     }
 
     public void savePassword(String password){
@@ -55,7 +58,8 @@ public class JenkinsSettingDataComponent {
     public String getPassword(){
         CredentialAttributes credentialAttributes =
                 new CredentialAttributes(CredentialAttributesKt.generateServiceName("Test", JENKINS_PASSWORD));
-        return PasswordSafe.getInstance().getPassword(credentialAttributes);
+        String password = PasswordSafe.getInstance().getPassword(credentialAttributes);
+        return StringUtils.isEmpty(password)?"admin":password;
     }
 
     public void saveEnableCrumb(boolean enableCrumb){

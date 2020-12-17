@@ -16,9 +16,7 @@ public class JenkinsToolFactory implements ToolWindowFactory {
 
     @Override
     public void createToolWindowContent(@NotNull Project project, @NotNull ToolWindow toolWindow) {
-        JenkinsClientAsync jenkinsClientAsync = new JenkinsClientAsync("http://127.0.0.1:8080/", "admin", "Corele1024.", true);
-        JenkinsMain jenkinsMain = new JenkinsMain(jenkinsClientAsync, project);
-
+        JenkinsMain jenkinsMain = new JenkinsMain(project);
         ContentFactory contentFactory = ContentFactory.SERVICE.getInstance();
         Content content = contentFactory.createContent(jenkinsMain, "", false);
         toolWindow.getContentManager().addContent(content);

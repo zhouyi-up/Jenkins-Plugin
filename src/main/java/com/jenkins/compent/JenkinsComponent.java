@@ -20,7 +20,9 @@ public class JenkinsComponent {
     private JenkinsSettingDataComponent settingData;
     private Project project;
 
-    private JenkinsComponent(){
+    private JenkinsComponent(Project project){
+        this.project = project;
+        settingData = JenkinsSettingDataComponent.getInstance();
         initJenkinsClient();
     }
 
@@ -30,9 +32,9 @@ public class JenkinsComponent {
                 settingData.getEnableCrumb());
     }
 
-    public static JenkinsComponent getInstance(){
+    public static JenkinsComponent getInstance(Project project){
         if (jenkinsComponent == null){
-            jenkinsComponent = new JenkinsComponent();
+            jenkinsComponent = new JenkinsComponent(project);
         }
         return jenkinsComponent;
     }

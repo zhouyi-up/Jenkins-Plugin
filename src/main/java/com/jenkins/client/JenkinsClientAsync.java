@@ -2,17 +2,10 @@ package com.jenkins.client;
 
 import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
-import com.intellij.diagnostic.LoadingState;
-import com.intellij.execution.RunManager;
 import com.intellij.icons.AllIcons;
 import com.intellij.notification.Notification;
 import com.intellij.notification.NotificationType;
 import com.intellij.notification.Notifications;
-import com.intellij.openapi.progress.ProgressIndicator;
-import com.intellij.openapi.progress.ProgressManager;
-import com.intellij.openapi.progress.Task;
-import com.intellij.openapi.ui.LoadingDecorator;
-import com.jenkins.JenkinsPropertiesComponent;
 import com.jenkins.config.HttpLogger;
 import com.jenkins.utils.JsonUtils;
 import com.jenkins.model.JobEntity;
@@ -21,7 +14,6 @@ import okhttp3.*;
 import okhttp3.logging.HttpLoggingInterceptor;
 import org.jetbrains.annotations.NotNull;
 
-import java.io.File;
 import java.io.IOException;
 import java.util.*;
 

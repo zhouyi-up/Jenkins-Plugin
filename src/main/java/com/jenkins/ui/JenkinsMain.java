@@ -43,7 +43,6 @@ public class JenkinsMain extends JPanel {
 
     public static final int CLICK_COUNT = 2;
 
-    private Project project;
     private JenkinsComponent jenkinsComponent;
 
     JBLabel jobText;
@@ -54,8 +53,8 @@ public class JenkinsMain extends JPanel {
 
     private final Map<String, JobEntity> jobMap = Maps.newConcurrentMap();
 
-    public JenkinsMain(JenkinsClientAsync jenkinsClientAsync, Project project){
-        this.jenkinsComponent = JenkinsComponent.getInstance();
+    public JenkinsMain(Project project){
+        this.jenkinsComponent = JenkinsComponent.getInstance(project);
 
         setLayout(new BorderLayout());
 
