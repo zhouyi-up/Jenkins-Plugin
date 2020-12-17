@@ -7,15 +7,19 @@ import com.intellij.openapi.progress.ProgressIndicator;
 import com.intellij.openapi.progress.ProgressManager;
 import com.intellij.openapi.progress.Task;
 import com.intellij.openapi.project.Project;
+import com.intellij.openapi.ui.popup.IconButton;
 import com.intellij.openapi.ui.popup.JBPopupFactory;
 import com.intellij.openapi.util.NlsContexts;
+import com.intellij.ui.BalloonImpl;
 import com.intellij.ui.components.JBLabel;
 import com.intellij.ui.components.JBScrollPane;
+import com.intellij.ui.roots.ToolbarPanel;
 import com.intellij.ui.treeStructure.Tree;
 import com.jenkins.client.BuildParam;
 import com.jenkins.client.DefaultCallback;
 import com.jenkins.client.JenkinsClientAsync;
 import com.jenkins.compent.JenkinsComponent;
+import com.jenkins.compent.JenkinsIcons;
 import com.jenkins.compent.JenkinsSettingDataComponent;
 import com.jenkins.model.JobEntity;
 import com.jenkins.model.JobListEntity;
@@ -183,17 +187,6 @@ public class JenkinsMain extends JPanel {
 
     private void initBtnPanelView(){
         JPanel jPanel = new JPanel();
-        jobText = new JBLabel();
-        jPanel.add(jobText);
-
-        JButton testBtn = new JButton("TestBtn");
-        testBtn.addActionListener(e -> {
-//            int size = rootNode.getChildCount() + 1;
-//            String name = "ele-" + size;
-//            addNode(name);
-
-        });
-        jPanel.add(testBtn);
 
         add(jPanel, BorderLayout.NORTH);
     }

@@ -90,7 +90,7 @@ public class JenkinsClientAsync {
     }
 
     private Crumb getCrumb() throws IOException {
-        String url =  jenkinsHost + "crumbIssuer/api/json";
+        String url =  jenkinsHost + "/crumbIssuer/api/json";
         Request request = new Request.Builder()
                 .url(url)
                 .addHeader("Authorization",auth())
@@ -137,7 +137,7 @@ public class JenkinsClientAsync {
      * @param callback
      */
     public void jobList(DefaultCallback<JobListEntity> callback){
-        String url = jenkinsHost + "api/json";
+        String url = jenkinsHost + "/api/json";
 
         Request request = new Request.Builder()
                 .url(url)
@@ -191,7 +191,7 @@ public class JenkinsClientAsync {
      * @param callback
      */
     public void build(String jobName,DefaultCallback<String> callback){
-        String url = jenkinsHost+"job/"+jobName+"/build";
+        String url = jenkinsHost+"/job/"+jobName+"/build";
         HashMap<String, Object> json = Maps.newHashMap();
         json.put(crumb.getCrumbRequestField(), crumb.getCrumb());
 
