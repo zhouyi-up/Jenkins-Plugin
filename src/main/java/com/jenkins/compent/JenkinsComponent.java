@@ -99,14 +99,14 @@ public class JenkinsComponent {
 
     public void run(JenkinsRun jenkinsRun){
         ProgressManager instance = ProgressManager.getInstance();
-        instance.run(new JenkinsTask(jenkinsRun));
+        instance.run(new JenkinsTask(jenkinsRun, project));
     }
 
     public class JenkinsTask extends Task.Backgroundable{
 
         private JenkinsRun jenkinsRun;
 
-        public JenkinsTask(JenkinsRun jenkinsRun) {
+        public JenkinsTask(JenkinsRun jenkinsRun, Project project) {
             super(project, "JenkinsTask");
             this.jenkinsRun = jenkinsRun;
         }
