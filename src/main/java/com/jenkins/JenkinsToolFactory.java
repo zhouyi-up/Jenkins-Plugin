@@ -16,7 +16,7 @@ public class JenkinsToolFactory implements ToolWindowFactory {
 
     @Override
     public void createToolWindowContent(@NotNull Project project, @NotNull ToolWindow toolWindow) {
-        JenkinsMain jenkinsMain = new JenkinsMain(project);
+        JenkinsMain jenkinsMain = new JenkinsMain(null);
         ContentFactory contentFactory = ContentFactory.SERVICE.getInstance();
         Content content = contentFactory.createContent(jenkinsMain, "", false);
         toolWindow.getContentManager().addContent(content);

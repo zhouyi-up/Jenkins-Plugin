@@ -113,7 +113,7 @@ public class JenkinsComponent {
 
         @Override
         public void run(@NotNull ProgressIndicator indicator) {
-            indicator.setText("test");
+            indicator.setText("Build");
             indicator.setIndeterminate(true);
 
             jenkinsRun.run();
