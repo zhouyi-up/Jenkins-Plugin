@@ -1,9 +1,11 @@
 package com.jenkins.ui;
 
 import com.google.common.collect.Maps;
+import com.intellij.openapi.ui.popup.JBPopupFactory;
 import com.intellij.ui.components.JBLabel;
 import com.intellij.ui.components.JBScrollPane;
 import com.intellij.ui.treeStructure.Tree;
+import com.jenkins.client.BuildParam;
 import com.jenkins.client.DefaultCallback;
 import com.jenkins.client.JenkinsClientAsync;
 import com.jenkins.model.JobEntity;
@@ -125,7 +127,26 @@ public class JenkinsMain extends JPanel {
                             });
                             return;
                         }
-                        jenkinsBuildView = new JenkinsBuildView(jenkinsClientAsync, jobBean);
+                        jenkinsBuildView = new JenkinsBuildView(jobBean);
+                        boolean b = jenkinsBuildView.showAndGet();
+                        if (b){
+                            Map<Object, Object> buildParamMap = jenkinsBuildView.getBuildParamMap();
+
+                            BuildParam buildParam = new BuildParam();
+                            buildParam.setJobName(jobBean.getName());
+                            buildParam.addParamForObject(buildParamMap);
+
+                            jenkinsClientAsync.build(buildParam, new DefaultCallback() {
+                                @Override
+                                public void success(Object data) {
+
+                                }
+                                @Override
+                                public void error(Exception exception) {
+
+                                }
+                            });
+                        }
                     }
                 }
 
@@ -204,11 +225,5 @@ public class JenkinsMain extends JPanel {
                 }
             });
         });
-    }
-
-    public void closeBuildParamView(){
-        if (jenkinsBuildView != null){
-            jenkinsBuildView.dispose();
-        }
     }
 }

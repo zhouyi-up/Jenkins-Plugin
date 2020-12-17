@@ -1,9 +1,6 @@
 package com.jenkins.ui;
 
-import com.intellij.icons.AllIcons;
-import com.intellij.notification.Notification;
-import com.intellij.notification.NotificationType;
-import com.intellij.notification.Notifications;
+import com.intellij.openapi.ui.DialogWrapper;
 import com.intellij.ui.components.JBPanel;
 import com.intellij.ui.components.JBScrollPane;
 import com.intellij.ui.table.JBTable;
@@ -11,11 +8,13 @@ import com.jenkins.client.BuildParam;
 import com.jenkins.client.DefaultCallback;
 import com.jenkins.client.JenkinsClientAsync;
 import com.jenkins.model.JobEntity;
-import com.jenkins.windows.ParamTableModel;
 import org.apache.commons.lang3.ArrayUtils;
+import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
 
 import javax.swing.*;
 import javax.swing.table.DefaultTableModel;
+import javax.swing.table.TableModel;
 import java.awt.*;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
@@ -27,93 +26,39 @@ import java.util.stream.Collectors;
 /**
  * @author liujun
  */
-public class JenkinsBuildView extends JFrame {
+public class JenkinsBuildView extends DialogWrapper {
 
-    private static final Vector<String> title = new Vector<>();
+    private static final Vector<String> TITLE = new Vector<>();
 
-    private JenkinsClientAsync jenkinsClientAsync;
-    private JobEntity jobEntity;
+    static {
+        TITLE.add("Param");
+        TITLE.add("Value");
+    }
+
+    private final JobEntity jobEntity;
+
 
     JBPanel jbPanel;
     JBTable jbTable;
     DefaultTableModel defaultTableModel;
 
 
-    public JenkinsBuildView(JenkinsClientAsync jenkinsClientAsync, JobEntity jobEntity){
-        this.jenkinsClientAsync = jenkinsClientAsync;
+    public JenkinsBuildView(JobEntity jobEntity){
+        super(true);
         this.jobEntity = jobEntity;
-
-        setDefaultCloseOperation(WindowConstants.DISPOSE_ON_CLOSE);
-
-        title.add("Param");
-        title.add("Value");
 
         jbPanel = new JBPanel();
         jbPanel.setLayout(new BorderLayout());
 
         initParamTable();
-        initBtnPanel(jenkinsClientAsync, jobEntity);
 
-        add(jbPanel);
-        setSize(300,300);
-        setLocationRelativeTo(null);
-        setVisible(true);
-
+        setTitle("Build");
+        init();
     }
 
     @Override
-    public void dispose() {
-        jbTable = null;
-        jbPanel = null;
-        defaultTableModel = null;
-        super.dispose();
-    }
-
-    /**
-     * 初始化按钮面板
-     * @param jenkinsClientAsync
-     * @param jobEntity
-     */
-    private void initBtnPanel(JenkinsClientAsync jenkinsClientAsync, JobEntity jobEntity) {
-        JBPanel btnPanel = new JBPanel();
-        JButton buildBtn = new JButton("Build");
-        buildBtn.addActionListener(new ActionListener() {
-            @Override
-            public void actionPerformed(ActionEvent e) {
-
-                int columnCount = defaultTableModel.getColumnCount();
-                int rowCount = defaultTableModel.getRowCount();
-
-                String[][] dataArr = new String[rowCount][columnCount];
-                for (int i = 0; i < columnCount; i++) {
-                    for (int j = 0; j < rowCount; j++) {
-                        String valueAt = String.valueOf(defaultTableModel.getValueAt(j, i));
-                        dataArr[j][i] = valueAt;
-                    }
-                }
-
-                Map<Object, Object> paramMap = ArrayUtils.toMap(dataArr);
-
-                BuildParam buildParam = new BuildParam();
-                buildParam.setJobName(jobEntity.getName());
-                buildParam.addParamForObject(paramMap);
-
-                jenkinsClientAsync.build(buildParam, new DefaultCallback() {
-                    @Override
-                    public void success(Object data) {
-                        dispose();
-                    }
-
-                    @Override
-                    public void error(Exception exception) {
-
-                    }
-                });
-            }
-        });
-
-        btnPanel.add(buildBtn);
-        jbPanel.add(btnPanel,BorderLayout.SOUTH);
+    protected @Nullable JComponent createCenterPanel() {
+        return jbPanel;
     }
 
     /**
@@ -121,7 +66,7 @@ public class JenkinsBuildView extends JFrame {
      */
     private void initParamTable() {
 
-        defaultTableModel = new DefaultTableModel(getParam(), title);
+        defaultTableModel = new DefaultTableModel(getParam(), TITLE);
         jbTable = new JBTable(defaultTableModel);
 
         JBScrollPane jbScrollPane = new JBScrollPane(jbTable);
@@ -156,5 +101,20 @@ public class JenkinsBuildView extends JFrame {
         }
 
         return vectors;
+    }
+
+    public Map<Object,Object> getBuildParamMap(){
+        int columnCount = defaultTableModel.getColumnCount();
+        int rowCount = defaultTableModel.getRowCount();
+
+        String[][] dataArr = new String[rowCount][columnCount];
+        for (int i = 0; i < columnCount; i++) {
+            for (int j = 0; j < rowCount; j++) {
+                String valueAt = String.valueOf(defaultTableModel.getValueAt(j, i));
+                dataArr[j][i] = valueAt;
+            }
+        }
+        Map<Object, Object> paramMap = ArrayUtils.toMap(dataArr);
+        return paramMap;
     }
 }

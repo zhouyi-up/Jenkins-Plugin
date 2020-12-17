@@ -2,10 +2,12 @@ package com.jenkins.client;
 
 import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
+import com.intellij.diagnostic.LoadingState;
 import com.intellij.icons.AllIcons;
 import com.intellij.notification.Notification;
 import com.intellij.notification.NotificationType;
 import com.intellij.notification.Notifications;
+import com.intellij.openapi.ui.LoadingDecorator;
 import com.jenkins.JenkinsPropertiesComponent;
 import com.jenkins.config.HttpLogger;
 import com.jenkins.utils.JsonUtils;
