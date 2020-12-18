@@ -12,6 +12,7 @@ import com.jenkins.model.JobEntity;
 import com.jenkins.model.JobListEntity;
 import okhttp3.*;
 import okhttp3.logging.HttpLoggingInterceptor;
+import org.apache.commons.lang3.StringUtils;
 import org.jetbrains.annotations.NotNull;
 
 import java.io.IOException;
@@ -53,7 +54,7 @@ public class JenkinsClientAsync {
                         Request.Builder authorizationBuilder = request.newBuilder()
                                 .addHeader("Authorization", auth());
                         if (enableCrumb){
-                            if (crumb == null){
+                            if (checkCrumbNull()){
                                 crumb = getCrumb();
                             }
                             authorizationBuilder.addHeader(crumb.getCrumbRequestField(),crumb.getCrumb());
@@ -79,6 +80,10 @@ public class JenkinsClientAsync {
                 })
                 .build();
         refreshCrumb();
+    }
+
+    private boolean checkCrumbNull() {
+        return crumb == null || StringUtils.isEmpty(crumb.getCrumbRequestField()) || StringUtils.isEmpty(crumb.getCrumb());
     }
 
     public void refreshCrumb(){

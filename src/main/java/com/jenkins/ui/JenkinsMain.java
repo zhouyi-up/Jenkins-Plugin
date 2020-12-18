@@ -35,13 +35,11 @@ import org.jetbrains.annotations.Nullable;
 import javax.swing.*;
 import javax.swing.event.TreeExpansionEvent;
 import javax.swing.event.TreeWillExpandListener;
-import javax.swing.tree.DefaultTreeModel;
-import javax.swing.tree.TreeModel;
-import javax.swing.tree.TreePath;
-import javax.swing.tree.TreeSelectionModel;
+import javax.swing.tree.*;
 import java.awt.*;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
+import java.util.Enumeration;
 import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
@@ -189,9 +187,12 @@ public class JenkinsMain extends SimpleToolWindowPanel {
         JenkinsTreeNode jenkinsTreeNode = new JenkinsTreeNode(jobName);
         jenkinsTreeNode.setAllowsChildren(true);
         treeModel.insertNodeInto(jenkinsTreeNode,rootNode, rootNode.getChildCount());
-        jTree.scrollPathToVisible(new TreePath(jenkinsTreeNode.getPath()));
+//        jTree.scrollPathToVisible(new TreePath(jenkinsTreeNode.getPath()));
     }
 
+    /**
+     * 初始化按钮
+     */
     private void initBtnPanelView(){
         DefaultActionGroup defaultActionGroup = new DefaultActionGroup();
 
@@ -199,7 +200,7 @@ public class JenkinsMain extends SimpleToolWindowPanel {
 
             @Override
             public void actionPerformed(@NotNull AnActionEvent e) {
-                JenkinsNotificationComponent.notifyError(null, "1111");
+                refreshTree();
             }
         };
 
@@ -209,6 +210,19 @@ public class JenkinsMain extends SimpleToolWindowPanel {
                 .createActionToolbar("Jenkins", defaultActionGroup, true).getComponent();
 
         setToolbar(actionToolbar);
+    }
+
+    private void refreshTree(){
+        rootNode.removeAllChildren();
+        jenkinsComponent.jobList(data -> {
+            List<JobListEntity.JobsBean> jobs = data.getJobs();
+            jobs.forEach(bean -> {
+                addNode(bean.getName());
+                jobMap.put(bean.getName(), new JobEntity());
+                jTree.updateUI();
+            });
+        }, () -> {});
+
     }
 
     private void initData(){
