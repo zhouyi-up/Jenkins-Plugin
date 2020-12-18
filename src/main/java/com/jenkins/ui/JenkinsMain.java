@@ -58,11 +58,13 @@ public class JenkinsMain extends SimpleToolWindowPanel {
     JenkinsBuildView jenkinsBuildView;
     Tree jTree;
     DefaultTreeModel treeModel;
+    Project project;
 
     private final Map<String, JobEntity> jobMap = Maps.newConcurrentMap();
 
     public JenkinsMain(Project project){
         super(true);
+        this.project = project;
         this.jenkinsComponent = JenkinsComponent.getInstance(project);
 
         setLayout(new BorderLayout());
@@ -148,7 +150,9 @@ public class JenkinsMain extends SimpleToolWindowPanel {
                         }
 
                         if (!isParam){
-                            jenkinsComponent.build(jobName, data -> {}, ()->{});
+                            jenkinsComponent.build(jobName, data -> {
+                                JenkinsNotificationComponent.notifySuccess(project, "Commit Successful!");
+                            }, ()->{});
                             return;
                         }
                         jenkinsBuildView = new JenkinsBuildView(jobBean);
@@ -160,7 +164,9 @@ public class JenkinsMain extends SimpleToolWindowPanel {
                             buildParam.setJobName(jobBean.getName());
                             buildParam.addParamForObject(buildParamMap);
 
-                            jenkinsComponent.build(buildParam,data -> {}, ()->{});
+                            jenkinsComponent.build(buildParam,data -> {
+                                JenkinsNotificationComponent.notifySuccess(project, "Commit Successful!");
+                            }, ()->{});
                         }
                     }
                 }
@@ -200,7 +206,6 @@ public class JenkinsMain extends SimpleToolWindowPanel {
         DefaultActionGroup defaultActionGroup = new DefaultActionGroup();
 
         AnAction refresh = new AnAction(JenkinsIcons.REFRESH) {
-
             @Override
             public void actionPerformed(@NotNull AnActionEvent e) {
                 refreshTree();
@@ -223,6 +228,7 @@ public class JenkinsMain extends SimpleToolWindowPanel {
                 addNode(bean.getName());
                 jobMap.put(bean.getName(), new JobEntity());
                 jTree.updateUI();
+                JenkinsNotificationComponent.notifySuccess(project, "Refresh Successful!");
             });
         }, () -> {});
 

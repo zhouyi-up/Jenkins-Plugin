@@ -39,6 +39,10 @@ public class JenkinsComponent {
         return jenkinsComponent;
     }
 
+    public void refreshClient(){
+        initJenkinsClient();
+    }
+
     public void build(String jobName, JenkinsSuccess<String> jenkinsSuccess, JenkinsError jenkinsError){
         run(() -> {
             jenkinsClientAsync.build(jobName, getBuildCallback(jenkinsSuccess, jenkinsError));

@@ -39,7 +39,7 @@ public abstract class DefaultCallback<T> implements Callback {
             T data = JsonUtils.parseObject(bodyString, getTClass());
             success(data);
         }else {
-            JenkinsNotificationComponent.notifyError(null, "Build Error");
+            buildError(response.code());
             error(new RuntimeException(response.toString()));
         }
     }
@@ -61,5 +61,14 @@ public abstract class DefaultCallback<T> implements Callback {
      */
     public void error(Exception exception){
 
+    }
+
+
+    private void buildError(int httpStatus){
+        if (httpStatus == 401){
+            JenkinsNotificationComponent.notifyWarning(null, "Please check your username or password.");
+        }else {
+            JenkinsNotificationComponent.notifyError(null, "Build Error");
+        }
     }
 }

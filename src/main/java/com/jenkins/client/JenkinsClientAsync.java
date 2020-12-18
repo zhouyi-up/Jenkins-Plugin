@@ -6,6 +6,7 @@ import com.intellij.icons.AllIcons;
 import com.intellij.notification.Notification;
 import com.intellij.notification.NotificationType;
 import com.intellij.notification.Notifications;
+import com.jenkins.compent.JenkinsNotificationComponent;
 import com.jenkins.config.HttpLogger;
 import com.jenkins.utils.JsonUtils;
 import com.jenkins.model.JobEntity;
@@ -57,7 +58,9 @@ public class JenkinsClientAsync {
                             if (checkCrumbNull()){
                                 crumb = getCrumb();
                             }
-                            authorizationBuilder.addHeader(crumb.getCrumbRequestField(),crumb.getCrumb());
+                            if (crumb != null){
+                                authorizationBuilder.addHeader(crumb.getCrumbRequestField(),crumb.getCrumb());
+                            }
                         }
                         return chain.proceed(authorizationBuilder.build());
                     }
@@ -122,14 +125,13 @@ public class JenkinsClientAsync {
                 .newCall(request)
                 .execute();
         if (response.isSuccessful()){
-            return JsonUtils.parseObject(response.body().string(),Crumb.class);
+            String string = response.body().string();
+            response.close();
+            return JsonUtils.parseObject(string,Crumb.class);
         }else {
-            Notification notification = new Notification("jenkins.ui.id",
-                    AllIcons.Actions.Forward, NotificationType.WARNING);
-            notification.setContent(response.toString());
-            notification.setTitle("Build Error ");
-            Notifications.Bus.notify(notification);
-            return new Crumb();
+            response.close();
+            JenkinsNotificationComponent.notifyError(null,"Crumb Build Error", response.toString());
+            return null;
         }
     }
 

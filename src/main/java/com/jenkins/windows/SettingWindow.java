@@ -3,6 +3,8 @@ package com.jenkins.windows;
 import com.intellij.openapi.options.Configurable;
 import com.intellij.openapi.options.ConfigurationException;
 import com.intellij.openapi.options.SearchableConfigurable;
+import com.intellij.openapi.project.ProjectManager;
+import com.jenkins.compent.JenkinsComponent;
 import com.jenkins.compent.JenkinsSettingDataComponent;
 import org.jetbrains.annotations.Nls;
 import org.jetbrains.annotations.NotNull;
@@ -157,6 +159,7 @@ public class SettingWindow implements SearchableConfigurable, Configurable.NoScr
         jenkinsPropertiesComponent.saveEnableCrumb(crumbEnable.isSelected());
 
         isModified = false;
+        JenkinsComponent.getInstance(ProjectManager.getInstance().getDefaultProject()).refreshClient();
     }
 
     /**
