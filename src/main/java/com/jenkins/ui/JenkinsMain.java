@@ -1,12 +1,17 @@
 package com.jenkins.ui;
 
 import com.google.common.collect.Maps;
+import com.intellij.openapi.actionSystem.ActionManager;
+import com.intellij.openapi.actionSystem.AnAction;
+import com.intellij.openapi.actionSystem.AnActionEvent;
+import com.intellij.openapi.actionSystem.DefaultActionGroup;
 import com.intellij.openapi.application.ModalityState;
 import com.intellij.openapi.progress.ProcessCanceledException;
 import com.intellij.openapi.progress.ProgressIndicator;
 import com.intellij.openapi.progress.ProgressManager;
 import com.intellij.openapi.progress.Task;
 import com.intellij.openapi.project.Project;
+import com.intellij.openapi.ui.SimpleToolWindowPanel;
 import com.intellij.openapi.ui.popup.IconButton;
 import com.intellij.openapi.ui.popup.JBPopupFactory;
 import com.intellij.openapi.util.NlsContexts;
@@ -20,6 +25,7 @@ import com.jenkins.client.DefaultCallback;
 import com.jenkins.client.JenkinsClientAsync;
 import com.jenkins.compent.JenkinsComponent;
 import com.jenkins.compent.JenkinsIcons;
+import com.jenkins.compent.JenkinsNotificationComponent;
 import com.jenkins.compent.JenkinsSettingDataComponent;
 import com.jenkins.model.JobEntity;
 import com.jenkins.model.JobListEntity;
@@ -43,7 +49,7 @@ import java.util.stream.Collectors;
 /**
  * @author corel
  */
-public class JenkinsMain extends JPanel {
+public class JenkinsMain extends SimpleToolWindowPanel {
 
     public static final int CLICK_COUNT = 2;
 
@@ -58,6 +64,7 @@ public class JenkinsMain extends JPanel {
     private final Map<String, JobEntity> jobMap = Maps.newConcurrentMap();
 
     public JenkinsMain(Project project){
+        super(true);
         this.jenkinsComponent = JenkinsComponent.getInstance(project);
 
         setLayout(new BorderLayout());
@@ -186,9 +193,22 @@ public class JenkinsMain extends JPanel {
     }
 
     private void initBtnPanelView(){
-        JPanel jPanel = new JPanel();
+        DefaultActionGroup defaultActionGroup = new DefaultActionGroup();
 
-        add(jPanel, BorderLayout.NORTH);
+        AnAction refresh = new AnAction(JenkinsIcons.REFRESH) {
+
+            @Override
+            public void actionPerformed(@NotNull AnActionEvent e) {
+                JenkinsNotificationComponent.notifyError(null, "1111");
+            }
+        };
+
+        defaultActionGroup.add(refresh);
+
+        JComponent actionToolbar = ActionManager.getInstance()
+                .createActionToolbar("Jenkins", defaultActionGroup, true).getComponent();
+
+        setToolbar(actionToolbar);
     }
 
     private void initData(){
