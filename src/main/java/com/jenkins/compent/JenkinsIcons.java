@@ -2,8 +2,6 @@ package com.jenkins.compent;
 
 import com.intellij.icons.AllIcons;
 import com.intellij.openapi.util.IconLoader;
-import com.intellij.ui.IconManager;
-import org.jetbrains.annotations.NotNull;
 
 import javax.swing.*;
 
@@ -18,5 +16,9 @@ public class JenkinsIcons {
 
     public static final Icon REFRESH = AllIcons.Actions.Refresh;
 
-    public static final Icon JENKINS_LOGO = getIcon("/image/pluginIcon.svg");
+    public static final Icon JENKINS_LOGO = getIcon("/image/jenkins_icon.png");
+
+    public static final Icon BUILD = AllIcons.Actions.Execute;
+
+    public static final Icon JOB = AllIcons.Nodes.MultipleTypeDefinitions;
 }
