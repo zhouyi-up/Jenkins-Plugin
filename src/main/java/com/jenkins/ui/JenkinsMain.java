@@ -67,6 +67,13 @@ public class JenkinsMain extends SimpleToolWindowPanel {
 
         setLayout(new BorderLayout());
 
+        initMainPanel();
+        initBtnPanelView();
+        initData();
+
+    }
+
+    private void initMainPanel() {
         rootNode = new JenkinsRootTreeNode();
 
         jTree = new Tree(rootNode);
@@ -173,10 +180,6 @@ public class JenkinsMain extends SimpleToolWindowPanel {
 
         JBScrollPane jbScrollPane = new JBScrollPane(jTree);
         add(jbScrollPane, BorderLayout.CENTER);
-
-        initBtnPanelView();
-        initData();
-
     }
 
     /**

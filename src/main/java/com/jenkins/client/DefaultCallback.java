@@ -24,7 +24,7 @@ public abstract class DefaultCallback<T> implements Callback {
 
     @Override
     public void onFailure(@NotNull Call call, @NotNull IOException e) {
-        JenkinsNotificationComponent.notifyError(null, "网络异常，请检查网络");
+        JenkinsNotificationComponent.notifyError(null, "The Network is Error, Please check the network");
         error(e);
     }
 
@@ -39,7 +39,7 @@ public abstract class DefaultCallback<T> implements Callback {
             T data = JsonUtils.parseObject(bodyString, getTClass());
             success(data);
         }else {
-            JenkinsNotificationComponent.notifyError(null, "处理失败");
+            JenkinsNotificationComponent.notifyError(null, "Build Error");
             error(new RuntimeException(response.toString()));
         }
     }
