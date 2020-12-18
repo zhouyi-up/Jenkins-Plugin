@@ -50,14 +50,14 @@ public class JenkinsSettingDataComponent {
 
     public void savePassword(String password){
         CredentialAttributes credentialAttributes =
-                new CredentialAttributes(CredentialAttributesKt.generateServiceName("Test", JENKINS_PASSWORD));
+                new CredentialAttributes(CredentialAttributesKt.generateServiceName("JENKINS_SYSTEM", JENKINS_PASSWORD));
         Credentials credentials = new Credentials("JENKINS_USERNAME", password);
         PasswordSafe.getInstance().set(credentialAttributes,credentials);
     }
 
     public String getPassword(){
         CredentialAttributes credentialAttributes =
-                new CredentialAttributes(CredentialAttributesKt.generateServiceName("Test", JENKINS_PASSWORD));
+                new CredentialAttributes(CredentialAttributesKt.generateServiceName("JENKINS_SYSTEM", JENKINS_PASSWORD));
         String password = PasswordSafe.getInstance().getPassword(credentialAttributes);
         return StringUtils.isEmpty(password)?"admin":password;
     }
