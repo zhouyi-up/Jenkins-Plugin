@@ -171,23 +171,6 @@ public class SettingWindow implements SearchableConfigurable, Configurable.NoScr
         initJenkinsParam();
     }
 
-    /**
-     * Called when 'Cancel' is pressed in the Settings dialog.
-     */
-    @Override
-    public void cancel() {
-
-    }
-
-    /**
-     * Notifies the configurable component that the Swing form will be closed.
-     * This method should dispose all resources associated with the component.
-     */
-    @Override
-    public void disposeUIResources() {
-
-    }
-
     @NotNull
     private String getPwd() {
         return jenkinsPwdText.getText();
