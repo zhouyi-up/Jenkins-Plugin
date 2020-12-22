@@ -45,4 +45,11 @@ public class JenkinsNotificationComponent {
                 .notify(project);
     }
 
+    public static void notifyWarning(Project project,String title, String content){
+        NotificationGroupManager.getInstance().getNotificationGroup(JENKINS_GROUP)
+                .createNotification(content, NotificationType.WARNING)
+                .setTitle(title)
+                .notify(project);
+    }
+
 }
