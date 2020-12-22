@@ -19,7 +19,7 @@ import java.awt.event.ActionListener;
 /**
  * @author liujun
  */
-public class SettingWindow implements SearchableConfigurable, Configurable.NoScroll{
+public class SettingWindow implements SearchableConfigurable{
 
     private boolean isModified = false;
 
@@ -157,6 +157,7 @@ public class SettingWindow implements SearchableConfigurable, Configurable.NoScr
         jenkinsPropertiesComponent.saveUsername(user);
         jenkinsPropertiesComponent.savePassword(pwd);
         jenkinsPropertiesComponent.saveEnableCrumb(crumbEnable.isSelected());
+        jenkinsPropertiesComponent.inited();
 
         isModified = false;
         JenkinsComponent.getInstance(ProjectManager.getInstance().getDefaultProject()).refreshClient();

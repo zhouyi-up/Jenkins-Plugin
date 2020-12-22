@@ -16,6 +16,10 @@ public class JenkinsIcons {
 
     public static final Icon REFRESH = AllIcons.Actions.Refresh;
 
+    public static final Icon COLLAPSEALL = AllIcons.Actions.Collapseall;
+    public static final Icon EXPANDALL = AllIcons.Actions.Expandall;
+
+
     public static final Icon JENKINS_LOGO = getIcon("/image/jenkins_icon.png");
 
     public static final Icon BUILD = AllIcons.Actions.Execute;

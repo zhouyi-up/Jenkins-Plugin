@@ -91,7 +91,9 @@ public class JenkinsClientAsync {
 
     public void refreshCrumb(){
         try {
-            crumb = getCrumb();
+            if (enableCrumb){
+                crumb = getCrumb();
+            }
         } catch (IOException e) {
             e.printStackTrace();
         }

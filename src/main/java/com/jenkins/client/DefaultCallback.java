@@ -22,6 +22,8 @@ import java.lang.reflect.ParameterizedType;
  */
 public abstract class DefaultCallback<T> implements Callback {
 
+    private Response response;
+
     @Override
     public void onFailure(@NotNull Call call, @NotNull IOException e) {
         JenkinsNotificationComponent.notifyError(null, "The Network is Error, Please check the network");
@@ -30,6 +32,7 @@ public abstract class DefaultCallback<T> implements Callback {
 
     @Override
     public void onResponse(@NotNull Call call, @NotNull Response response) throws IOException {
+        this.response = response;
         if (response.isSuccessful()){
             String bodyString = response.body().string();
             if (StringUtils.isEmpty(bodyString)){
@@ -55,20 +58,20 @@ public abstract class DefaultCallback<T> implements Callback {
      */
     public abstract void success(T data);
 
+
     /**
      * 错误
      * @param exception
      */
     public void error(Exception exception){
-
     }
 
 
     private void buildError(int httpStatus){
         if (httpStatus == 401){
-            JenkinsNotificationComponent.notifyWarning(null, "Please check your username or password.");
+            JenkinsNotificationComponent.notifyWarning(null, "Jenkins Auth Error","Please check your config for jenkins.");
         }else {
-            JenkinsNotificationComponent.notifyError(null, "Build Error");
+            JenkinsNotificationComponent.notifyError(null, "Jenkins Plugin",response.body().toString());
         }
     }
 }
