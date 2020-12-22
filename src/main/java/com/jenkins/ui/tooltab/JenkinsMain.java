@@ -10,7 +10,6 @@ import com.intellij.openapi.ui.SimpleToolWindowPanel;
 import com.intellij.ui.components.JBLabel;
 import com.intellij.ui.components.JBScrollPane;
 import com.intellij.ui.treeStructure.Tree;
-import com.jenkins.client.BuildParam;
 import com.jenkins.compent.JenkinsComponent;
 import com.jenkins.compent.JenkinsIcons;
 import com.jenkins.compent.JenkinsNotificationComponent;
@@ -19,15 +18,10 @@ import com.jenkins.model.JobListEntity;
 import org.jetbrains.annotations.NotNull;
 
 import javax.swing.*;
-import javax.swing.event.TreeExpansionEvent;
-import javax.swing.event.TreeWillExpandListener;
 import javax.swing.tree.*;
 import java.awt.*;
-import java.awt.event.MouseAdapter;
-import java.awt.event.MouseEvent;
 import java.util.List;
 import java.util.Map;
-import java.util.stream.Collectors;
 
 /**
  * @author corel
@@ -36,7 +30,7 @@ public class JenkinsMain extends SimpleToolWindowPanel {
 
     public static final int CLICK_COUNT = 2;
 
-    private JenkinsComponent jenkinsComponent;
+    private final JenkinsComponent jenkinsComponent;
 
     JBLabel jobText;
     JenkinsRootTreeNode rootNode;
@@ -56,8 +50,6 @@ public class JenkinsMain extends SimpleToolWindowPanel {
 
         initMainPanel();
         initBtnPanelView();
-        initData();
-
     }
 
     private void initMainPanel() {
@@ -65,109 +57,10 @@ public class JenkinsMain extends SimpleToolWindowPanel {
 
         jTree = new Tree(rootNode);
         treeModel = (DefaultTreeModel) jTree.getModel();
-
         jTree.setCellRenderer(new JenkinsTreeCellRenderer());
-
-        jTree.getSelectionModel().setSelectionMode
-                (TreeSelectionModel.SINGLE_TREE_SELECTION);
-        jTree.addTreeSelectionListener(e -> {
-            Object lastSelectedPathComponent = jTree.getLastSelectedPathComponent();
-            if (lastSelectedPathComponent == null){
-                System.out.println("GG");
-            }
-        });
-
-        jTree.addTreeWillExpandListener(new TreeWillExpandListener() {
-            @Override
-            public void treeWillExpand(TreeExpansionEvent event) {
-                TreePath path = event.getPath();
-                if (path == null){
-                    return;
-                }
-                Object lastPathComponent = path.getLastPathComponent();
-                if (lastPathComponent == null){
-                    return;
-                }
-                if (lastPathComponent instanceof JenkinsRootTreeNode){
-                    initJobInfo();
-                }
-            }
-
-            @Override
-            public void treeWillCollapse(TreeExpansionEvent event) {
-
-            }
-        });
-
-        MouseAdapter mouseAdapter = new MouseAdapter() {
-            @Override
-            public void mouseClicked(MouseEvent e) {
-                Component deepestRendererComponentAt = jTree.getDeepestRendererComponentAt(e.getX(), e.getY());
-                if (deepestRendererComponentAt == null){
-                    return;
-                }
-
-                Object lastSelectedPathComponent = jTree.getLastSelectedPathComponent();
-                if (lastSelectedPathComponent == null){
-                    return;
-                }
-
-                if (lastSelectedPathComponent instanceof JenkinsBuildTreeNode){
-                    JenkinsBuildTreeNode selectNode = (JenkinsBuildTreeNode) lastSelectedPathComponent;
-                    String jobName = selectNode.getJobName();
-                    if (e.getClickCount() >= CLICK_COUNT){
-                        JobEntity jobBean = jobMap.get(jobName);
-                        if (jobBean == null){
-                            return;
-                        }
-
-                        boolean isParam = true;
-
-                        List<JobEntity.PropertyBean> property = jobBean.getProperty();
-                        if (property.isEmpty()){
-                            isParam = false;
-                        }
-                        List<JobEntity.PropertyBean> collect = property.stream()
-                                .filter(item -> "hudson.model.ParametersDefinitionProperty".equals(item.get_class()))
-                                .collect(Collectors.toList());
-                        if (collect.isEmpty()){
-                            isParam = false;
-                        }
-
-                        if (!isParam){
-                            jenkinsComponent.build(jobName, data -> {
-                                JenkinsNotificationComponent.notifySuccess(project, "Commit Successful!");
-                            }, ()->{});
-                            return;
-                        }
-                        jenkinsBuildView = new JenkinsBuildView(jobBean);
-                        boolean b = jenkinsBuildView.showAndGet();
-                        if (b){
-                            Map<Object, Object> buildParamMap = jenkinsBuildView.getBuildParamMap();
-
-                            BuildParam buildParam = new BuildParam();
-                            buildParam.setJobName(jobBean.getName());
-                            buildParam.addParamForObject(buildParamMap);
-
-                            jenkinsComponent.build(buildParam,data -> {
-                                JenkinsNotificationComponent.notifySuccess(project, "Commit Successful!");
-                            }, ()->{});
-                        }
-                    }
-                }
-
-                if (lastSelectedPathComponent instanceof JenkinsTreeNode){
-                    JenkinsTreeNode jenkinsTreeNode = (JenkinsTreeNode) lastSelectedPathComponent;
-                    String jobName = jenkinsTreeNode.getJobName();
-
-                    jenkinsComponent.jobInfo(jobName, data -> {
-                        jobMap.put(data.getName(), data);
-                    }, ()->{});
-                }
-            }
-        };
-
-        jTree.addMouseListener(mouseAdapter);
+        jTree.getSelectionModel().setSelectionMode(TreeSelectionModel.SINGLE_TREE_SELECTION);
+        jTree.addTreeWillExpandListener(new JenkinsMainTreeWillExpandListener(jobMap, project, jenkinsComponent));
+        jTree.addMouseListener(new JenkinsMainMouseAdapter(project, jobMap, jenkinsComponent));
 
         JBScrollPane jbScrollPane = new JBScrollPane(jTree);
         add(jbScrollPane, BorderLayout.CENTER);
@@ -181,7 +74,6 @@ public class JenkinsMain extends SimpleToolWindowPanel {
         JenkinsTreeNode jenkinsTreeNode = new JenkinsTreeNode(jobName);
         jenkinsTreeNode.setAllowsChildren(true);
         treeModel.insertNodeInto(jenkinsTreeNode,rootNode, rootNode.getChildCount());
-//        jTree.scrollPathToVisible(new TreePath(jenkinsTreeNode.getPath()));
     }
 
     /**
@@ -189,19 +81,27 @@ public class JenkinsMain extends SimpleToolWindowPanel {
      */
     private void initBtnPanelView(){
         DefaultActionGroup defaultActionGroup = new DefaultActionGroup();
-
         AnAction refresh = new AnAction(JenkinsIcons.REFRESH) {
             @Override
             public void actionPerformed(@NotNull AnActionEvent e) {
                 refreshTree();
             }
         };
-
         defaultActionGroup.add(refresh);
+
+        AnAction closeAll = new AnAction(JenkinsIcons.COLLAPSEALL) {
+            @Override
+            public void actionPerformed(@NotNull AnActionEvent e) {
+                int childCount = rootNode.getChildCount();
+                for (int i = 0; i < childCount; i++) {
+                    jTree.collapseRow(i);
+                }
+            }
+        };
+        defaultActionGroup.add(closeAll);
 
         JComponent actionToolbar = ActionManager.getInstance()
                 .createActionToolbar("Jenkins", defaultActionGroup, true).getComponent();
-
         setToolbar(actionToolbar);
     }
 
@@ -212,27 +112,10 @@ public class JenkinsMain extends SimpleToolWindowPanel {
             jobs.forEach(bean -> {
                 addNode(bean.getName());
                 jobMap.put(bean.getName(), new JobEntity());
-                jTree.updateUI();
-                JenkinsNotificationComponent.notifySuccess(project, "Refresh Successful!");
             });
+            jTree.updateUI();
+            JenkinsNotificationComponent.notifySuccess(project, "Refresh Successful!");
         }, () -> {});
 
-    }
-
-    private void initData(){
-        jenkinsComponent.jobList(data -> {
-            List<JobListEntity.JobsBean> jobs = data.getJobs();
-            jobs.forEach(bean -> {
-                rootNode.add(new JenkinsTreeNode(bean.getName()));
-                jobMap.put(bean.getName(), new JobEntity());
-            });
-        }, () -> {});
-    }
-
-    private void initJobInfo(){
-        jobMap.entrySet().forEach(entry -> {
-            String jobName = entry.getKey();
-            jenkinsComponent.jobInfo(jobName, entry::setValue, () -> {});
-        });
     }
 }
