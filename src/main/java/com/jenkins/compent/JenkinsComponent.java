@@ -17,8 +17,8 @@ public class JenkinsComponent {
     private static JenkinsComponent jenkinsComponent;
 
     private JenkinsClientAsync jenkinsClientAsync;
-    private JenkinsSettingDataComponent settingData;
-    private Project project;
+    private final JenkinsSettingDataComponent settingData;
+    private final Project project;
 
     private JenkinsComponent(Project project){
         this.project = project;
@@ -99,9 +99,9 @@ public class JenkinsComponent {
         instance.run(new JenkinsTask(jenkinsRun, project));
     }
 
-    public class JenkinsTask extends Task.Backgroundable{
+    public static class JenkinsTask extends Task.Backgroundable{
 
-        private JenkinsRun jenkinsRun;
+        private final JenkinsRun jenkinsRun;
 
         public JenkinsTask(JenkinsRun jenkinsRun, Project project) {
             super(project, "JenkinsTask");
