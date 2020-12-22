@@ -1,4 +1,4 @@
-package com.jenkins.ui;
+package com.jenkins.ui.tooltab;
 
 import com.intellij.ui.ColoredTreeCellRenderer;
 import com.jenkins.compent.JenkinsIcons;
@@ -6,8 +6,6 @@ import org.jetbrains.annotations.NotNull;
 
 import javax.swing.*;
 import javax.swing.tree.DefaultMutableTreeNode;
-import javax.swing.tree.DefaultTreeCellRenderer;
-import java.awt.*;
 
 /**
  * @author liujun

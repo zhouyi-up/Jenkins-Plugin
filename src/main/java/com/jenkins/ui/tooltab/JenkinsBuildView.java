@@ -1,4 +1,4 @@
-package com.jenkins.ui;
+package com.jenkins.ui.tooltab;
 
 import com.intellij.openapi.ui.DialogWrapper;
 import com.intellij.ui.components.JBPanel;

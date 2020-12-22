@@ -19,7 +19,7 @@ import java.awt.event.ActionListener;
 /**
  * @author liujun
  */
-public class SettingWindow implements SearchableConfigurable, Configurable.NoScroll{
+public class SettingWindow implements SearchableConfigurable{
 
     private boolean isModified = false;
 
