@@ -157,6 +157,7 @@ public class SettingWindow implements SearchableConfigurable{
         jenkinsPropertiesComponent.saveUsername(user);
         jenkinsPropertiesComponent.savePassword(pwd);
         jenkinsPropertiesComponent.saveEnableCrumb(crumbEnable.isSelected());
+        jenkinsPropertiesComponent.inited();
 
         isModified = false;
         JenkinsComponent.getInstance(ProjectManager.getInstance().getDefaultProject()).refreshClient();

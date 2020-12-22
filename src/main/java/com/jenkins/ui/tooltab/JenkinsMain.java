@@ -13,6 +13,7 @@ import com.intellij.ui.treeStructure.Tree;
 import com.jenkins.compent.JenkinsComponent;
 import com.jenkins.compent.JenkinsIcons;
 import com.jenkins.compent.JenkinsNotificationComponent;
+import com.jenkins.compent.JenkinsSettingDataComponent;
 import com.jenkins.model.JobEntity;
 import com.jenkins.model.JobListEntity;
 import org.jetbrains.annotations.NotNull;
@@ -28,13 +29,10 @@ import java.util.Map;
  */
 public class JenkinsMain extends SimpleToolWindowPanel {
 
-    public static final int CLICK_COUNT = 2;
-
     private final JenkinsComponent jenkinsComponent;
+    private final JenkinsSettingDataComponent dataComponent;
 
-    JBLabel jobText;
     JenkinsRootTreeNode rootNode;
-    JenkinsBuildView jenkinsBuildView;
     Tree jTree;
     DefaultTreeModel treeModel;
     Project project;
@@ -45,11 +43,16 @@ public class JenkinsMain extends SimpleToolWindowPanel {
         super(true);
         this.project = project;
         this.jenkinsComponent = JenkinsComponent.getInstance(project);
+        this.dataComponent = JenkinsSettingDataComponent.getInstance();
 
         setLayout(new BorderLayout());
 
         initMainPanel();
         initBtnPanelView();
+
+        if (!dataComponent.getInited()){
+            JenkinsNotificationComponent.notifySuccess(project, "Jenkins Plugin", "You need to configure for jenkins.");
+        }
     }
 
     private void initMainPanel() {

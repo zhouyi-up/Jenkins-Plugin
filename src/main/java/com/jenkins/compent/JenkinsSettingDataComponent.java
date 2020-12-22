@@ -16,6 +16,7 @@ public class JenkinsSettingDataComponent {
     public static final String JENKINS_PASSWORD = "jenkins.pwd";
     public static final String JENKINS_USERNAME = "jenkins.username";
     public static final String JENKINS_CRUMB_ENABLE = "jenkins.enableCrumb";
+    public static final String JENKINS_INITED = "jenkins.inited";
 
     private static JenkinsSettingDataComponent jenkinsSettingDataComponent;
     private PropertiesComponent propertiesComponent;
@@ -70,4 +71,11 @@ public class JenkinsSettingDataComponent {
         return propertiesComponent.getBoolean(JENKINS_CRUMB_ENABLE);
     }
 
+    public boolean getInited(){
+        return propertiesComponent.getBoolean(JENKINS_INITED);
+    }
+
+    public void inited(){
+        propertiesComponent.setValue(JENKINS_INITED, true);
+    }
 }
