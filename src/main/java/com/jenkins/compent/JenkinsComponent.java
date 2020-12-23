@@ -5,6 +5,7 @@ import com.intellij.openapi.progress.ProgressManager;
 import com.intellij.openapi.progress.Task;
 import com.intellij.openapi.project.Project;
 import com.jenkins.client.*;
+import com.jenkins.model.JobBuildInfo;
 import com.jenkins.model.JobEntity;
 import com.jenkins.model.JobListEntity;
 import org.jetbrains.annotations.NotNull;
@@ -110,10 +111,10 @@ public class JenkinsComponent {
      * @param success
      * @param error
      */
-    public void buildInfo(String jobName, int number, JenkinsSuccess<JobEntity> success, JenkinsError error){
+    public void buildInfo(String jobName, int number, JenkinsSuccess<JobBuildInfo> success, JenkinsError error){
         run(() -> {
             try {
-                JobEntity jobEntity = jenkinsClientAsync.buildInfo(jobName, number);
+                JobBuildInfo jobEntity = jenkinsClientAsync.buildInfo(jobName, number);
                 if (jobEntity != null){
                     success.success(jobEntity);
                     return;

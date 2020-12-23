@@ -6,18 +6,25 @@ import okhttp3.Response;
 import okhttp3.ResponseBody;
 import org.apache.commons.lang3.StringUtils;
 
+import java.io.IOException;
+
 /**
  * @author liujun
  */
 public final class ResponseUtils {
 
     public static <T> T getClass(Class<T> clazz, ResponseBody body){
-        String json = body.toString();
-        if (StringUtils.isEmpty(json)){
+        try {
+            String json = body.string();
+            if (StringUtils.isEmpty(json)){
+                return null;
+            }
+            T t = JsonUtils.parseObject(json, clazz);
+            return t;
+        } catch (IOException e) {
+            e.printStackTrace();
             return null;
         }
-        T t = JsonUtils.parseObject(json, clazz);
-        return t;
     }
 
     public static void notifyError(Response response){

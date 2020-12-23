@@ -1,6 +1,7 @@
 package com.jenkins.client;
 
 import com.google.common.collect.Maps;
+import com.jenkins.model.JobBuildInfo;
 import com.jenkins.model.JobEntity;
 import com.jenkins.model.JobListEntity;
 import okhttp3.*;
@@ -114,14 +115,14 @@ public class JenkinsClientAsync {
         client.newCall(request).enqueue(callback);
     }
 
-    public JobEntity buildInfo(String jobName, int number) throws IOException {
+    public JobBuildInfo buildInfo(String jobName, int number) throws IOException {
         String url = jenkinsHost + "/job/" + jobName + "/" + number + "/api/json";
         Request request = new Request.Builder()
                 .url(url)
                 .build();
         Response response = client.newCall(request).execute();
         if (response.isSuccessful()){
-            return ResponseUtils.getClass(JobEntity.class, response.body());
+            return ResponseUtils.getClass(JobBuildInfo.class, response.body());
         }else {
             ResponseUtils.notifyError(response);
             return null;

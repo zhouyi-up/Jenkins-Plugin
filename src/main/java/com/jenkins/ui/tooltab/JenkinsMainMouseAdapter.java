@@ -6,7 +6,9 @@ import com.intellij.ui.treeStructure.Tree;
 import com.jenkins.client.BuildParam;
 import com.jenkins.compent.JenkinsComponent;
 import com.jenkins.compent.JenkinsNotificationComponent;
+import com.jenkins.model.JobBuildInfo;
 import com.jenkins.model.JobEntity;
+import org.apache.commons.lang3.StringUtils;
 
 import java.awt.*;
 import java.awt.event.MouseAdapter;
@@ -59,20 +61,7 @@ public class JenkinsMainMouseAdapter extends MouseAdapter {
                 if (jobBean == null){
                     return;
                 }
-
-                boolean isParam = true;
-
-                java.util.List<JobEntity.PropertyBean> property = jobBean.getProperty();
-                if (property.isEmpty()){
-                    isParam = false;
-                }
-                List<JobEntity.PropertyBean> collect = property.stream()
-                        .filter(item -> "hudson.model.ParametersDefinitionProperty".equals(item.get_class()))
-                        .collect(Collectors.toList());
-                if (collect.isEmpty()){
-                    isParam = false;
-                }
-
+                boolean isParam = checkParam(jobBean);
                 if (!isParam){
                     jenkinsComponent.build(jobName, data -> {
                         JenkinsNotificationComponent.notifySuccess(project, "Commit Successful!");
@@ -94,5 +83,74 @@ public class JenkinsMainMouseAdapter extends MouseAdapter {
                 }
             }
         }
+
+        if (lastSelectedPathComponent instanceof JenkinsLastBuildTreeNode){
+            JenkinsLastBuildTreeNode selectNode = (JenkinsLastBuildTreeNode) lastSelectedPathComponent;
+            String jobName = selectNode.getJobName();
+            if (e.getClickCount() >= CLICK_COUNT){
+                JobEntity jobEntity = jobMap.get(jobName);
+                if (jobEntity == null){
+                    JenkinsNotificationComponent.notifyWarning(project, "Jenkins Plugin", "You need to build it once ！");
+                    return;
+                }
+                JobEntity.LastBuildBean lastBuild = jobEntity.getLastBuild();
+                if (lastBuild == null){
+                    JenkinsNotificationComponent.notifyWarning(project, "Jenkins Plugin", "You need to build it once in remote");
+                }
+                int number = lastBuild.getNumber();
+                jenkinsComponent.buildInfo(jobName, number, data -> {
+                    boolean isParam = checkParam(jobEntity);
+                    if (!isParam){
+                        jenkinsComponent.build(jobName, str -> {
+                            JenkinsNotificationComponent.notifySuccess(project, "Commit Successful!");
+                        }, ()->{});
+                        return;
+                    }
+                    Map<Object, Object> buildParamMap = Maps.newHashMap();
+                    List<JobBuildInfo.ActionsBean> actions = data.getActions();
+                    if (actions == null || actions.isEmpty()){
+                        return;
+                    }
+                    List<JobBuildInfo.ActionsBean> collect = actions.stream()
+                            .filter(actionsBean -> StringUtils.isNotEmpty(actionsBean.get_class()))
+                            .filter(action -> action.get_class().equals("hudson.model.ParametersAction"))
+                            .collect(Collectors.toList());
+                    if (collect == null || collect.isEmpty()){
+                        return;
+                    }
+                    JobBuildInfo.ActionsBean actionsBean = collect.get(0);
+                    List<JobBuildInfo.ActionsBean.ParametersBean> parameters = actionsBean.getParameters();
+                    parameters.forEach(param -> {
+                        buildParamMap.put(param.getName(), param.getValue());
+                    });
+
+                    BuildParam buildParam = new BuildParam();
+                    buildParam.setJobName(jobName);
+                    buildParam.addParamForObject(buildParamMap);
+
+                    jenkinsComponent.build(buildParam,daa -> {
+                        JenkinsNotificationComponent.notifySuccess(project, "Commit Successful!");
+                    }, ()->{});
+
+                }, () -> {});
+            }
+        }
+    }
+
+    private boolean checkParam(JobEntity jobEntity){
+        boolean isParam = true;
+
+        java.util.List<JobEntity.PropertyBean> property = jobEntity.getProperty();
+        if (property.isEmpty()){
+            isParam = false;
+        }
+        List<JobEntity.PropertyBean> collect = property.stream()
+                .filter(item -> "hudson.model.ParametersDefinitionProperty".equals(item.get_class()))
+                .collect(Collectors.toList());
+        if (collect.isEmpty()){
+            isParam = false;
+        }
+
+        return isParam;
     }
 }
