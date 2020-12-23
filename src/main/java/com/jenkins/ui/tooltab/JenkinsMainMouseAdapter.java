@@ -76,6 +76,7 @@ public class JenkinsMainMouseAdapter extends MouseAdapter {
             if (!isParam){
                 jenkinsComponent.build(jobName, data -> {
                     JenkinsNotificationComponent.notifySuccess(project, "Commit Successful!");
+                    jenkinsComponent.jobInfo(jobName, daaa-> jobMap.put(jobName, daaa), ()->{});
                 }, ()->{});
                 return true;
             }
@@ -90,6 +91,7 @@ public class JenkinsMainMouseAdapter extends MouseAdapter {
 
                 jenkinsComponent.build(buildParam,data -> {
                     JenkinsNotificationComponent.notifySuccess(project, "Commit Successful!");
+                    jenkinsComponent.jobInfo(jobName, daaa-> jobMap.put(jobName, daaa), ()->{});
                 }, ()->{});
             }
         }
