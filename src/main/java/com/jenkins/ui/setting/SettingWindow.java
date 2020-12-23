@@ -191,6 +191,6 @@ public class SettingWindow implements SearchableConfigurable{
 
     @NotNull
     private String getPwd() {
-        return jenkinsPwdText.getText();
+        return new String(jenkinsPwdText.getPassword());
     }
 }

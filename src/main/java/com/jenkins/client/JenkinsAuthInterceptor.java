@@ -53,7 +53,8 @@ public class JenkinsAuthInterceptor implements Interceptor {
                 authorizationBuilder.addHeader(crumb.getCrumbRequestField(),crumb.getCrumb());
             }
         }
-        return chain.proceed(authorizationBuilder.build());
+        Request bu = authorizationBuilder.build();
+        return chain.proceed(bu);
     }
 
 

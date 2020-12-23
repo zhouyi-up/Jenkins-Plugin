@@ -34,15 +34,10 @@ public abstract class DefaultCallback<T> implements Callback {
     public void onResponse(@NotNull Call call, @NotNull Response response) throws IOException {
         this.response = response;
         if (response.isSuccessful()){
-            String bodyString = response.body().string();
-            if (StringUtils.isEmpty(bodyString)){
-                success(null);
-                return;
-            }
-            T data = JsonUtils.parseObject(bodyString, getTClass());
+            T data = ResponseUtils.getClass(getTClass(), response.body());
             success(data);
         }else {
-            buildError(response.code());
+            ResponseUtils.notifyError(response);
             error(new RuntimeException(response.toString()));
         }
     }
@@ -64,14 +59,5 @@ public abstract class DefaultCallback<T> implements Callback {
      * @param exception
      */
     public void error(Exception exception){
-    }
-
-
-    private void buildError(int httpStatus){
-        if (httpStatus == 401){
-            JenkinsNotificationComponent.notifyWarning(null, "Jenkins Auth Error","Please check your config for jenkins.");
-        }else {
-            JenkinsNotificationComponent.notifyError(null, "Jenkins Plugin",response.body().toString());
-        }
     }
 }

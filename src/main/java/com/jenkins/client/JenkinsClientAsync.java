@@ -7,6 +7,7 @@ import okhttp3.*;
 import okhttp3.logging.HttpLoggingInterceptor;
 import org.jetbrains.annotations.NotNull;
 
+import java.io.IOException;
 import java.util.*;
 
 /**
@@ -111,5 +112,19 @@ public class JenkinsClientAsync {
                 .build();
 
         client.newCall(request).enqueue(callback);
+    }
+
+    public JobEntity buildInfo(String jobName, int number) throws IOException {
+        String url = jenkinsHost + "/job/" + jobName + "/" + number + "/api/json";
+        Request request = new Request.Builder()
+                .url(url)
+                .build();
+        Response response = client.newCall(request).execute();
+        if (response.isSuccessful()){
+            return ResponseUtils.getClass(JobEntity.class, response.body());
+        }else {
+            ResponseUtils.notifyError(response);
+            return null;
+        }
     }
 }

@@ -25,4 +25,6 @@ public class JenkinsIcons {
     public static final Icon BUILD = AllIcons.Actions.Execute;
 
     public static final Icon JOB = AllIcons.Nodes.MultipleTypeDefinitions;
+
+    public static final Icon LAST_RUN = AllIcons.Actions.Profile;
 }
