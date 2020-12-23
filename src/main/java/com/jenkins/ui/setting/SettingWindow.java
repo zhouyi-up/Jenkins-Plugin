@@ -1,4 +1,4 @@
-package com.jenkins.windows;
+package com.jenkins.ui.setting;
 
 import com.intellij.openapi.options.Configurable;
 import com.intellij.openapi.options.ConfigurationException;

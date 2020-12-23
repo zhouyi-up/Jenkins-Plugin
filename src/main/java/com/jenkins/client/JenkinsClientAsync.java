@@ -1,22 +1,12 @@
 package com.jenkins.client;
 
-import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
-import com.intellij.icons.AllIcons;
-import com.intellij.notification.Notification;
-import com.intellij.notification.NotificationType;
-import com.intellij.notification.Notifications;
-import com.jenkins.compent.JenkinsNotificationComponent;
-import com.jenkins.config.HttpLogger;
-import com.jenkins.utils.JsonUtils;
 import com.jenkins.model.JobEntity;
 import com.jenkins.model.JobListEntity;
 import okhttp3.*;
 import okhttp3.logging.HttpLoggingInterceptor;
-import org.apache.commons.lang3.StringUtils;
 import org.jetbrains.annotations.NotNull;
 
-import java.io.IOException;
 import java.util.*;
 
 /**
