@@ -108,6 +108,7 @@ public class JenkinsMainMouseAdapter extends MouseAdapter {
             JobEntity.LastBuildBean lastBuild = jobEntity.getLastBuild();
             if (lastBuild == null){
                 JenkinsNotificationComponent.notifyWarning(project, "Jenkins Plugin", "You need to build it once in remote");
+                return;
             }
             int number = lastBuild.getNumber();
             jenkinsComponent.buildInfo(jobName, number, data -> {
