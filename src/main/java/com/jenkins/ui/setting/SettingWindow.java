@@ -1,4 +1,4 @@
-package com.jenkins.windows;
+package com.jenkins.ui.setting;
 
 import com.intellij.openapi.options.Configurable;
 import com.intellij.openapi.options.ConfigurationException;
@@ -191,6 +191,6 @@ public class SettingWindow implements SearchableConfigurable{
 
     @NotNull
     private String getPwd() {
-        return jenkinsPwdText.getText();
+        return new String(jenkinsPwdText.getText());
     }
 }

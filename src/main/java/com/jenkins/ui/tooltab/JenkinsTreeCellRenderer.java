@@ -35,6 +35,10 @@ public class JenkinsTreeCellRenderer extends ColoredTreeCellRenderer {
                 append("Build");
                 setIcon(JenkinsIcons.BUILD);
             }
+            if (value instanceof JenkinsLastBuildTreeNode){
+                append("Run Last Build");
+                setIcon(JenkinsIcons.LAST_RUN);
+            }
         }
     }
 }

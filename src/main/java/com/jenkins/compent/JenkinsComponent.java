@@ -5,9 +5,12 @@ import com.intellij.openapi.progress.ProgressManager;
 import com.intellij.openapi.progress.Task;
 import com.intellij.openapi.project.Project;
 import com.jenkins.client.*;
+import com.jenkins.model.JobBuildInfo;
 import com.jenkins.model.JobEntity;
 import com.jenkins.model.JobListEntity;
 import org.jetbrains.annotations.NotNull;
+
+import java.io.IOException;
 
 /**
  * @author liujun
@@ -26,12 +29,20 @@ public class JenkinsComponent {
         initJenkinsClient();
     }
 
+    /**
+     * inited
+     */
     private void initJenkinsClient() {
         jenkinsClientAsync = new JenkinsClientAsync(settingData.getHost(),
                 settingData.getUsername(), settingData.getPassword(),
                 settingData.getEnableCrumb());
     }
 
+    /**
+     * get instance
+     * @param project project
+     * @return this
+     */
     public static JenkinsComponent getInstance(Project project){
         if (jenkinsComponent == null){
             jenkinsComponent = new JenkinsComponent(project);
@@ -90,6 +101,28 @@ public class JenkinsComponent {
                     success.success(data);
                 }
             });
+        });
+    }
+
+    /**
+     * build info for number
+     * @param jobName
+     * @param number
+     * @param success
+     * @param error
+     */
+    public void buildInfo(String jobName, int number, JenkinsSuccess<JobBuildInfo> success, JenkinsError error){
+        run(() -> {
+            try {
+                JobBuildInfo jobEntity = jenkinsClientAsync.buildInfo(jobName, number);
+                if (jobEntity != null){
+                    success.success(jobEntity);
+                    return;
+                }
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
+            error.error();
         });
     }
 

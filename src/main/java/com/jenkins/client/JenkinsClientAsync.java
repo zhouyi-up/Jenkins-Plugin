@@ -1,19 +1,11 @@
 package com.jenkins.client;
 
-import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
-import com.intellij.icons.AllIcons;
-import com.intellij.notification.Notification;
-import com.intellij.notification.NotificationType;
-import com.intellij.notification.Notifications;
-import com.jenkins.compent.JenkinsNotificationComponent;
-import com.jenkins.config.HttpLogger;
-import com.jenkins.utils.JsonUtils;
+import com.jenkins.model.JobBuildInfo;
 import com.jenkins.model.JobEntity;
 import com.jenkins.model.JobListEntity;
 import okhttp3.*;
 import okhttp3.logging.HttpLoggingInterceptor;
-import org.apache.commons.lang3.StringUtils;
 import org.jetbrains.annotations.NotNull;
 
 import java.io.IOException;
@@ -31,11 +23,7 @@ public class JenkinsClientAsync {
 
     private OkHttpClient client = null;
 
-    private Crumb crumb = null;
-
     private boolean enableCrumb;
-
-    private final HashMap<String, List<Cookie>> cookieStore = new HashMap<>();
 
     public JenkinsClientAsync(String jenkinsHost,String username,String password, boolean enableCrumb){
         this.username = username;
@@ -43,102 +31,18 @@ public class JenkinsClientAsync {
         this.jenkinsHost = jenkinsHost;
         this.enableCrumb = enableCrumb;
 
+        client = new OkHttpClient.Builder()
+                .addInterceptor(getHttpLoggingInterceptor())
+                .addInterceptor(JenkinsAuthInterceptor.getInstance(jenkinsHost, username,password,enableCrumb))
+                .cookieJar(JenkinsCookieJar.getInstance())
+                .build();
+    }
+
+    @NotNull
+    private HttpLoggingInterceptor getHttpLoggingInterceptor() {
         HttpLoggingInterceptor loggingInterceptor = new HttpLoggingInterceptor(new HttpLogger());
         loggingInterceptor.setLevel(HttpLoggingInterceptor.Level.BODY);
-        client = new OkHttpClient.Builder()
-                .addInterceptor(loggingInterceptor)
-                .addInterceptor(new Interceptor() {
-                    @NotNull
-                    @Override
-                    public Response intercept(@NotNull Chain chain) throws IOException {
-                        Request request = chain.request();
-                        Request.Builder authorizationBuilder = request.newBuilder()
-                                .addHeader("Authorization", auth());
-                        if (enableCrumb){
-                            if (checkCrumbNull()){
-                                crumb = getCrumb();
-                            }
-                            if (crumb != null){
-                                authorizationBuilder.addHeader(crumb.getCrumbRequestField(),crumb.getCrumb());
-                            }
-                        }
-                        return chain.proceed(authorizationBuilder.build());
-                    }
-                })
-                .cookieJar(new CookieJar() {
-                    @Override
-                    public void saveFromResponse(@NotNull HttpUrl httpUrl, @NotNull List<Cookie> list) {
-                        if (list == null){
-                            return;
-                        }
-                        cookieStore.put(httpUrl.host(), list);
-                    }
-
-                    @NotNull
-                    @Override
-                    public List<Cookie> loadForRequest(@NotNull HttpUrl httpUrl) {
-                        List<Cookie> cookies = cookieStore.get(httpUrl.host());
-                        return cookies != null ? cookies : new ArrayList<Cookie>();
-                    }
-                })
-                .build();
-        refreshCrumb();
-    }
-
-    private boolean checkCrumbNull() {
-        return crumb == null || StringUtils.isEmpty(crumb.getCrumbRequestField()) || StringUtils.isEmpty(crumb.getCrumb());
-    }
-
-    public void refreshCrumb(){
-        try {
-            if (enableCrumb){
-                crumb = getCrumb();
-            }
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
-    }
-
-    private Crumb getCrumb() throws IOException {
-        String url =  jenkinsHost + "/crumbIssuer/api/json";
-        Request request = new Request.Builder()
-                .url(url)
-                .addHeader("Authorization",auth())
-                .addHeader("Connection","keep-alive")
-                .build();
-        Response response = new OkHttpClient.Builder()
-                .cookieJar(new CookieJar() {
-                    @Override
-                    public void saveFromResponse(@NotNull HttpUrl httpUrl, @NotNull List<Cookie> list) {
-                        if (list == null){
-                            return;
-                        }
-                        cookieStore.put(httpUrl.host(), list);
-                    }
-
-                    @NotNull
-                    @Override
-                    public List<Cookie> loadForRequest(@NotNull HttpUrl httpUrl) {
-                        List<Cookie> cookies = cookieStore.get(httpUrl.host());
-                        return cookies != null ? cookies : new ArrayList<Cookie>();
-                    }
-                })
-                .build()
-                .newCall(request)
-                .execute();
-        if (response.isSuccessful()){
-            String string = response.body().string();
-            response.close();
-            return JsonUtils.parseObject(string,Crumb.class);
-        }else {
-            response.close();
-            JenkinsNotificationComponent.notifyError(null,"Crumb Build Error", response.toString());
-            return null;
-        }
-    }
-
-    private String auth() {
-        return "Basic "+ Base64.getUrlEncoder().encodeToString((username+":"+password).getBytes());
+        return loggingInterceptor;
     }
 
     /**
@@ -202,17 +106,26 @@ public class JenkinsClientAsync {
     public void build(String jobName,DefaultCallback<String> callback){
         String url = jenkinsHost+"/job/"+jobName+"/build";
         HashMap<String, Object> json = Maps.newHashMap();
-        json.put(crumb.getCrumbRequestField(), crumb.getCrumb());
-
-        RequestBody requestBody = new FormBody(Lists.newArrayList(crumb.getCrumbRequestField(), "json"),
-                Lists.newArrayList(crumb.getCrumb(), JsonUtils.toJsonString(json)));
 
         Request request = new Request.Builder()
                 .addHeader("Content-Type", "application/x-www-form-urlencoded")
-                .post(requestBody)
                 .url(url)
                 .build();
 
         client.newCall(request).enqueue(callback);
+    }
+
+    public JobBuildInfo buildInfo(String jobName, int number) throws IOException {
+        String url = jenkinsHost + "/job/" + jobName + "/" + number + "/api/json";
+        Request request = new Request.Builder()
+                .url(url)
+                .build();
+        Response response = client.newCall(request).execute();
+        if (response.isSuccessful()){
+            return ResponseUtils.getClass(JobBuildInfo.class, response.body());
+        }else {
+            ResponseUtils.notifyError(response);
+            return null;
+        }
     }
 }

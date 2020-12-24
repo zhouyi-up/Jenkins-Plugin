@@ -20,7 +20,7 @@
         <!-- Add your extensions here -->
         <toolWindow id="Jenkins" anchor="left" secondary="false" icon="/image/jenkins_icon.png"
                     factoryClass="com.jenkins.JenkinsToolFactory"/>
-        <applicationConfigurable parentId="tools" instance="com.jenkins.windows.SettingWindow"
+        <applicationConfigurable parentId="tools" instance="com.jenkins.ui.setting.SettingWindow"
                                  displayName="Jenkins Configurable"/>
         <notificationGroup id="Jenkins Group" displayType="BALLOON"/>
     </extensions>
