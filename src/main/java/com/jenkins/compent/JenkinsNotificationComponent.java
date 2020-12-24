@@ -35,10 +35,24 @@ public class JenkinsNotificationComponent {
         notification.notify(project);
     }
 
+    public static void notifySuccess(Project project,String title, String content){
+        NotificationGroupManager.getInstance().getNotificationGroup(JENKINS_GROUP)
+                .createNotification(content, NotificationType.INFORMATION)
+                .setTitle(title)
+                .notify(project);
+    }
+
     public static void notifyWarning(Project project, String content){
         Notification notification = new Notification(JENKINS_GROUP, "",content, NotificationType.WARNING);
         notification.setContent(content);
         notification.notify(project);
+    }
+
+    public static void notifyWarning(Project project,String title, String content){
+        NotificationGroupManager.getInstance().getNotificationGroup(JENKINS_GROUP)
+                .createNotification(content, NotificationType.WARNING)
+                .setTitle(title)
+                .notify(project);
     }
 
 }

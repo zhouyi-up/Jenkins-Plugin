@@ -1,4 +1,4 @@
-package com.jenkins.config;
+package com.jenkins.client;
 
 import okhttp3.logging.HttpLoggingInterceptor;
 
@@ -6,6 +6,8 @@ import okhttp3.logging.HttpLoggingInterceptor;
  * @author liujun
  */
 public class HttpLogger implements HttpLoggingInterceptor.Logger {
+
+
     @Override
     public void log(String message) {
         System.out.println(message);

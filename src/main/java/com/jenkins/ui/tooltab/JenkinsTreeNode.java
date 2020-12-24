@@ -1,4 +1,4 @@
-package com.jenkins.ui;
+package com.jenkins.ui.tooltab;
 
 import javax.swing.tree.DefaultMutableTreeNode;
 
@@ -15,6 +15,9 @@ public class JenkinsTreeNode extends DefaultMutableTreeNode {
         this.jobName = jobName;
         JenkinsBuildTreeNode build = new JenkinsBuildTreeNode(jobName);
         add(build);
+
+        JenkinsLastBuildTreeNode lastBuild = new JenkinsLastBuildTreeNode(jobName);
+        add(lastBuild);
     }
 
     public String getJobName(){
