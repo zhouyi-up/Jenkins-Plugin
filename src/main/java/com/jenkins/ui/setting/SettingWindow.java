@@ -1,4 +1,4 @@
-package com.jenkins.windows;
+package com.jenkins.ui.setting;
 
 import com.intellij.openapi.options.Configurable;
 import com.intellij.openapi.options.ConfigurationException;
@@ -19,7 +19,7 @@ import java.awt.event.ActionListener;
 /**
  * @author liujun
  */
-public class SettingWindow implements SearchableConfigurable, Configurable.NoScroll{
+public class SettingWindow implements SearchableConfigurable{
 
     private boolean isModified = false;
 
@@ -157,6 +157,7 @@ public class SettingWindow implements SearchableConfigurable, Configurable.NoScr
         jenkinsPropertiesComponent.saveUsername(user);
         jenkinsPropertiesComponent.savePassword(pwd);
         jenkinsPropertiesComponent.saveEnableCrumb(crumbEnable.isSelected());
+        jenkinsPropertiesComponent.inited();
 
         isModified = false;
         JenkinsComponent.getInstance(ProjectManager.getInstance().getDefaultProject()).refreshClient();
@@ -190,6 +191,6 @@ public class SettingWindow implements SearchableConfigurable, Configurable.NoScr
 
     @NotNull
     private String getPwd() {
-        return jenkinsPwdText.getText();
+        return new String(jenkinsPwdText.getText());
     }
 }

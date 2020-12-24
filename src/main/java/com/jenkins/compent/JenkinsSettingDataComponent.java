@@ -16,6 +16,7 @@ public class JenkinsSettingDataComponent {
     public static final String JENKINS_PASSWORD = "jenkins.pwd";
     public static final String JENKINS_USERNAME = "jenkins.username";
     public static final String JENKINS_CRUMB_ENABLE = "jenkins.enableCrumb";
+    public static final String JENKINS_INITED = "jenkins.inited";
 
     private static JenkinsSettingDataComponent jenkinsSettingDataComponent;
     private PropertiesComponent propertiesComponent;
@@ -49,16 +50,11 @@ public class JenkinsSettingDataComponent {
     }
 
     public void savePassword(String password){
-        CredentialAttributes credentialAttributes =
-                new CredentialAttributes(CredentialAttributesKt.generateServiceName("JENKINS_SYSTEM", JENKINS_PASSWORD));
-        Credentials credentials = new Credentials("JENKINS_USERNAME", password);
-        PasswordSafe.getInstance().set(credentialAttributes,credentials);
+        propertiesComponent.setValue(JENKINS_PASSWORD, password);
     }
 
     public String getPassword(){
-        CredentialAttributes credentialAttributes =
-                new CredentialAttributes(CredentialAttributesKt.generateServiceName("JENKINS_SYSTEM", JENKINS_PASSWORD));
-        String password = PasswordSafe.getInstance().getPassword(credentialAttributes);
+        String password = propertiesComponent.getValue(JENKINS_PASSWORD);
         return StringUtils.isEmpty(password)?"admin":password;
     }
 
@@ -70,4 +66,11 @@ public class JenkinsSettingDataComponent {
         return propertiesComponent.getBoolean(JENKINS_CRUMB_ENABLE);
     }
 
+    public boolean getInited(){
+        return propertiesComponent.getBoolean(JENKINS_INITED);
+    }
+
+    public void inited(){
+        propertiesComponent.setValue(JENKINS_INITED, true);
+    }
 }

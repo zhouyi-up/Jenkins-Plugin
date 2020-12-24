@@ -4,7 +4,7 @@ plugins {
 }
 
 group 'cn.j-tools'
-version '1.0.201'
+version '1.2.201'
 
 sourceCompatibility = 11
 
@@ -37,8 +37,9 @@ intellij {
 patchPluginXml {
     changeNotes """
     <ol>
-        <li>Support 2020.2.3</li>
-        <li>Default host: http://127.0.0.1:8080 user: admin password: admin</li>
+        <li>Fix the problem of excessive memory consumption</li>
+        <li>Optimize text prompt</li>
+        <li>Add and collapse extensions</li>
     </ol>
     """
 }

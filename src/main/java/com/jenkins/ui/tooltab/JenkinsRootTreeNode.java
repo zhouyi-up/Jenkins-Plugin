@@ -1,4 +1,4 @@
-package com.jenkins.ui;
+package com.jenkins.ui.tooltab;
 
 import javax.swing.tree.DefaultMutableTreeNode;
 
