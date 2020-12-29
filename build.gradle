@@ -4,7 +4,7 @@ plugins {
 }
 
 group 'cn.j-tools'
-version '1.2.203'
+version '1.3.203'
 
 sourceCompatibility = 11
 
