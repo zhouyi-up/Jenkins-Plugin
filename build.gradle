@@ -3,20 +3,19 @@ plugins {
     id 'org.jetbrains.intellij' version '0.6.5'
 }
 
-group 'cn.j-tools'
-version '${Main_Version}.203'
+group property("group")
+version property("version")
 
 sourceCompatibility = 11
 
 repositories {
+    google()
     maven { url "https://www.jetbrains.com/intellij-repository/releases" }
-//    maven { url "https://www.jetbrains.com/intellij-repository/snapshots"}
     maven { url "https://jetbrains.bintray.com/intellij-third-party-dependencies" }
-    maven {
-        url 'http://maven.aliyun.com/nexus/content/groups/public/'
-    }
+    maven { url 'https://maven.aliyun.com/nexus/content/groups/public/' }
     mavenCentral()
     mavenLocal()
+    maven { url "https://www.jetbrains.com/intellij-repository/snapshots" }
 }
 
 dependencies {
@@ -25,10 +24,10 @@ dependencies {
     compile 'org.slf4j:slf4j-api:1.7.30'
     compile 'commons-io:commons-io:2.8.0'
     compile 'org.apache.commons:commons-lang3:3.11'
-    compile 'com.fasterxml.jackson.core:jackson-databind:2.12.0'
-    compile 'com.fasterxml.jackson.core:jackson-core:2.12.0'
-    compile 'com.squareup.okhttp3:logging-interceptor:4.9.0'
-    compile 'com.cdancy:jenkins-rest:X.Y.Z'
+    compile 'com.squareup.okhttp3:logging-interceptor:4.9.1'
+    compile 'com.fasterxml.jackson.core:jackson-core:2.12.3'
+    compile 'com.fasterxml.jackson.core:jackson-databind:2.12.3'
+    implementation("cn.jtools:jenkins-client:0.0.1")
 }
 
 // See https://github.com/JetBrains/gradle-intellij-plugin/
