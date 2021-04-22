@@ -22,39 +22,22 @@ public class JenkinsClient {
             HttpURLConnection connection = (HttpURLConnection) new URL(url).openConnection();
             connection.setRequestMethod(HttpMethod.GET.toString());
             connection.setDoInput(true);
-            connection.setDoOutput(true);
+            connection.setRequestProperty("Authorization", JenkinsUtils.auth(user, password));
+
             connection.connect();
 
+            StringBuilder stringBuffer = new StringBuilder();
 
-            OutputStream outputStream = connection.getOutputStream();
-            OutputStreamWriter writer = new OutputStreamWriter(outputStream);
-            String data = "";
-            writer.write(data);
-            writer.flush();
-            writer.close();
+            InputStreamReader reader = new InputStreamReader(connection.getInputStream());
+            int len;
 
-            StringBuffer stringBuffer = new StringBuffer();
-            if (connection.getResponseCode() == 200){
-                InputStreamReader reader = new InputStreamReader(connection.getInputStream());
-                int len;
-
-                char[] buf = new char[1024];
-                while ((len = reader.read(buf))!= -1){
-                    stringBuffer.append(buf, 0, len);
-                }
-                reader.close();
-            }else {
-                InputStreamReader reader = new InputStreamReader(connection.getInputStream());
-                int len;
-
-                char[] buf = new char[1024];
-                while ((len = reader.read(buf))!= -1){
-                    stringBuffer.append(buf, 0, len);
-                }
-                reader.close();
+            char[] buf = new char[1024];
+            while ((len = reader.read(buf))!= -1){
+                stringBuffer.append(buf, 0, len);
             }
+            reader.close();
             connection.disconnect();
-            System.out.println(stringBuffer.toString());
+
         } catch (IOException e) {
             e.printStackTrace();
         }
