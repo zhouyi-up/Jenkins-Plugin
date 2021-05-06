@@ -11,6 +11,7 @@ sourceCompatibility = 11
 repositories {
     google()
     maven { url "https://www.jetbrains.com/intellij-repository/releases" }
+    maven { url "https://cache-redirector.jetbrains.com/intellij-dependencies" }
     maven { url "https://jetbrains.bintray.com/intellij-third-party-dependencies" }
     maven { url 'https://maven.aliyun.com/nexus/content/groups/public/' }
     mavenCentral()
@@ -27,12 +28,13 @@ dependencies {
     compile 'com.squareup.okhttp3:logging-interceptor:4.9.1'
     compile 'com.fasterxml.jackson.core:jackson-core:2.12.3'
     compile 'com.fasterxml.jackson.core:jackson-databind:2.12.3'
-    implementation("cn.jtools:jenkins-client:0.0.1")
+//    implementation("cn.jtools:jenkins-client:0.0.1")
 }
 
 // See https://github.com/JetBrains/gradle-intellij-plugin/
 intellij {
-    version '2021.1'
+    pluginName "Jenkins Plugin"
+    version property("IntelliJ_Version")
 }
 patchPluginXml {
     changeNotes """
