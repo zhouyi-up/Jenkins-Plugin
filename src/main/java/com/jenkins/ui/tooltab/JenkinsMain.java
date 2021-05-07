@@ -7,7 +7,9 @@ import com.intellij.openapi.actionSystem.AnActionEvent;
 import com.intellij.openapi.actionSystem.DefaultActionGroup;
 import com.intellij.openapi.project.Project;
 import com.intellij.openapi.ui.SimpleToolWindowPanel;
+import com.intellij.ui.SearchTextField;
 import com.intellij.ui.components.JBLabel;
+import com.intellij.ui.components.JBPanel;
 import com.intellij.ui.components.JBScrollPane;
 import com.intellij.ui.treeStructure.Tree;
 import com.jenkins.compent.JenkinsComponent;
@@ -29,6 +31,7 @@ import java.util.Map;
  */
 public class JenkinsMain extends SimpleToolWindowPanel {
 
+    public static final String SELECT_VIEW_NONE = "None";
     private final JenkinsComponent jenkinsComponent;
     private final JenkinsSettingDataComponent dataComponent;
 
@@ -36,9 +39,14 @@ public class JenkinsMain extends SimpleToolWindowPanel {
     Tree jTree;
     DefaultTreeModel treeModel;
     Project project;
+    SelectViewAnAction selectViewAnAction;
 
     private final Map<String, JobEntity> jobMap = Maps.newConcurrentMap();
 
+    /**
+     * 初始化
+     * @param project
+     */
     public JenkinsMain(Project project){
         super(true);
         this.project = project;
@@ -52,9 +60,14 @@ public class JenkinsMain extends SimpleToolWindowPanel {
 
         if (!dataComponent.getInited()){
             JenkinsNotificationComponent.notifySuccess(project, "Jenkins Plugin", "You need to configure for jenkins.");
+        }else {
+            refreshTree();
         }
     }
 
+    /**
+     * 初始化job tree
+     */
     private void initMainPanel() {
         rootNode = new JenkinsRootTreeNode();
 
@@ -84,6 +97,7 @@ public class JenkinsMain extends SimpleToolWindowPanel {
      */
     private void initBtnPanelView(){
         DefaultActionGroup defaultActionGroup = new DefaultActionGroup();
+        //刷新
         AnAction refresh = new AnAction(JenkinsIcons.REFRESH) {
             @Override
             public void actionPerformed(@NotNull AnActionEvent e) {
@@ -91,7 +105,7 @@ public class JenkinsMain extends SimpleToolWindowPanel {
             }
         };
         defaultActionGroup.add(refresh);
-
+        //关闭所有
         AnAction closeAll = new AnAction(JenkinsIcons.COLLAPSEALL) {
             @Override
             public void actionPerformed(@NotNull AnActionEvent e) {
@@ -103,22 +117,52 @@ public class JenkinsMain extends SimpleToolWindowPanel {
         };
         defaultActionGroup.add(closeAll);
 
+        //下拉框
+        selectViewAnAction = new SelectViewAnAction(e -> {
+            String selectItemName = String.valueOf(e.getItem());
+            if (selectItemName.equals(SELECT_VIEW_NONE)){
+                refreshTree();
+            }else {
+                jenkinsComponent.jobListForView(selectItemName, data -> refreshJobsList(data.getJobs()), () -> {});
+            }
+        });
+        defaultActionGroup.add(selectViewAnAction);
+
         JComponent actionToolbar = ActionManager.getInstance()
-                .createActionToolbar("Jenkins", defaultActionGroup, true).getComponent();
+                .createActionToolbar("Jenkins", defaultActionGroup, true)
+                .getComponent();
         setToolbar(actionToolbar);
     }
 
+    /**
+     * 刷新树
+     */
     private void refreshTree(){
         rootNode.removeAllChildren();
+        selectViewAnAction.removeChildAll();
+
         jenkinsComponent.jobList(data -> {
-            List<JobListEntity.JobsBean> jobs = data.getJobs();
-            jobs.forEach(bean -> {
-                addNode(bean.getName());
-                jobMap.put(bean.getName(), new JobEntity());
-            });
-            jTree.updateUI();
+            refreshJobsList(data.getJobs());
+            //刷新下拉
+            List<JobListEntity.ViewsBean> views = data.getViews();
+            views.forEach(viewsBean -> selectViewAnAction.addItem(viewsBean.getName()));
             JenkinsNotificationComponent.notifySuccess(project, "Refresh Successful!");
         }, () -> {});
 
+    }
+
+    /**
+     * 刷新job列表
+     * @param jobs
+     */
+    private void refreshJobsList(List<JobListEntity.JobsBean> jobs) {
+        rootNode.removeAllChildren();
+        //刷新job列表
+        jobs.forEach(bean -> {
+            addNode(bean.getName());
+            jobMap.clear();
+            jobMap.put(bean.getName(), new JobEntity());
+        });
+        jTree.updateUI();
     }
 }
