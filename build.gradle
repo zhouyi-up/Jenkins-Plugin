@@ -49,5 +49,5 @@ patchPluginXml {
 publishPlugin {
     token System.getenv("IDEA_TOKEN")
     println(getToken())
-//    channels 'EAP'
+//    channels "DEV"
 }
