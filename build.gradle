@@ -4,7 +4,7 @@ plugins {
 }
 
 group property("group")
-version '1.5.'.concat(property("Child_Version"))
+version '1.5.'.concat(property("Child_Version") as String)
 
 sourceCompatibility = 11
 
