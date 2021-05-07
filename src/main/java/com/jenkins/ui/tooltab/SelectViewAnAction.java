@@ -22,11 +22,15 @@ public class SelectViewAnAction extends DumbAwareAction implements CustomCompone
     JComboBox<String> viewComboBox;
     Listener listener;
 
-    public SelectViewAnAction(){
-    }
-
     public SelectViewAnAction(Listener listener){
         addListener(listener);
+
+        viewComboBox = new ComboBox<>();
+        viewComboBox.addItem("None");
+        viewComboBox.addActionListener(e -> {
+
+        });
+        viewComboBox.addItemListener(listener::actionPerformed);
     }
 
     @Override
@@ -35,14 +39,6 @@ public class SelectViewAnAction extends DumbAwareAction implements CustomCompone
 
     @Override
     public @NotNull JComponent createCustomComponent(@NotNull Presentation presentation, @NotNull String place) {
-        viewComboBox = new ComboBox<>();
-        viewComboBox.addItem("None");
-        viewComboBox.addActionListener(e -> {
-
-        });
-        viewComboBox.addItemListener(e -> {
-            listener.actionPerformed(e);
-        });
         return viewComboBox;
     }
 
@@ -51,6 +47,7 @@ public class SelectViewAnAction extends DumbAwareAction implements CustomCompone
     }
 
     public void removeChildAll(){
+
         viewComboBox.removeAll();
     }
 

@@ -60,6 +60,8 @@ public class JenkinsMain extends SimpleToolWindowPanel {
 
         if (!dataComponent.getInited()){
             JenkinsNotificationComponent.notifySuccess(project, "Jenkins Plugin", "You need to configure for jenkins.");
+        }else {
+            refreshTree();
         }
     }
 
