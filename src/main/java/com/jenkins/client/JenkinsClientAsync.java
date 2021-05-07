@@ -59,6 +59,19 @@ public class JenkinsClientAsync {
     }
 
     /**
+     * job 列表
+     * @param callback
+     */
+    public void jobList(String viewName, DefaultCallback<JobListEntity> callback){
+        String url = jenkinsHost +"/view/"+viewName + "/api/json";
+
+        Request request = new Request.Builder()
+                .url(url)
+                .build();
+        client.newCall(request).enqueue(callback);
+    }
+
+    /**
      * job详情
      * @param jobName
      * @param callback

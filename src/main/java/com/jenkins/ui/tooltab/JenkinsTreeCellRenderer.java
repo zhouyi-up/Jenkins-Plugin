@@ -25,7 +25,6 @@ public class JenkinsTreeCellRenderer extends ColoredTreeCellRenderer {
             Object userObject = node.getUserObject();
             if (value instanceof JenkinsRootTreeNode){
                 append("Jenkins");
-                append("<h1>...</h1>");
                 setIcon(JenkinsIcons.JENKINS_LOGO);
             }
             if (value instanceof JenkinsTreeNode){

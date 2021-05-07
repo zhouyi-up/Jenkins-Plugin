@@ -104,6 +104,17 @@ public class JenkinsComponent {
         });
     }
 
+    public void jobListForView(String viewName, JenkinsSuccess<JobListEntity> success, JenkinsError error){
+        run(() -> {
+            jenkinsClientAsync.jobList(viewName, new DefaultCallback<JobListEntity>() {
+                @Override
+                public void success(JobListEntity data) {
+                    success.success(data);
+                }
+            });
+        });
+    }
+
     /**
      * build info for number
      * @param jobName
