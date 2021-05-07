@@ -18,14 +18,11 @@ import java.io.IOException;
 public class JenkinsComponent {
 
     private static JenkinsComponent jenkinsComponent;
-
     private JenkinsClientAsync jenkinsClientAsync;
-    private final JenkinsSettingDataComponent settingData;
     private final Project project;
 
     private JenkinsComponent(Project project){
         this.project = project;
-        settingData = JenkinsSettingDataComponent.getInstance();
         initJenkinsClient();
     }
 
@@ -33,9 +30,7 @@ public class JenkinsComponent {
      * inited
      */
     private void initJenkinsClient() {
-        jenkinsClientAsync = new JenkinsClientAsync(settingData.getHost(),
-                settingData.getUsername(), settingData.getPassword(),
-                settingData.getEnableCrumb());
+        jenkinsClientAsync = new JenkinsClientAsync();
     }
 
     /**
@@ -96,6 +91,17 @@ public class JenkinsComponent {
     public void jobList(JenkinsSuccess<JobListEntity> success, JenkinsError error){
         run(() -> {
             jenkinsClientAsync.jobList(new DefaultCallback<JobListEntity>() {
+                @Override
+                public void success(JobListEntity data) {
+                    success.success(data);
+                }
+            });
+        });
+    }
+
+    public void jobListForView(String viewName, JenkinsSuccess<JobListEntity> success, JenkinsError error){
+        run(() -> {
+            jenkinsClientAsync.jobList(viewName, new DefaultCallback<JobListEntity>() {
                 @Override
                 public void success(JobListEntity data) {
                     success.success(data);

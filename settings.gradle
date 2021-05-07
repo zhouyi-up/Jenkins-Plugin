@@ -7,3 +7,6 @@ pluginManagement {
     }
 }
 rootProject.name = 'jenkins-plugin'
+include 'jenkins-client'
+include 'jenkins-client'
+

@@ -1,6 +1,8 @@
 package com.jenkins.client;
 
+import com.jenkins.compent.JenkinsComponent;
 import com.jenkins.compent.JenkinsNotificationComponent;
+import com.jenkins.compent.JenkinsSettingDataComponent;
 import com.jenkins.utils.JsonUtils;
 import okhttp3.*;
 import org.apache.commons.lang3.StringUtils;
@@ -17,23 +19,18 @@ public class JenkinsAuthInterceptor implements Interceptor {
 
     private static JenkinsAuthInterceptor jenkinsAuthInterceptor;
 
-    private final String username;
-    private final String password;
-    private final String jenkinsHost;
+    private final JenkinsSettingDataComponent settingComponent;
 
     private boolean enableCrumb;
     private Crumb crumb;
 
-    private JenkinsAuthInterceptor(String jenkinsHost, String username, String password, boolean enableCrumb) {
-        this.jenkinsHost = jenkinsHost;
-        this.username = username;
-        this.password = password;
-        this.enableCrumb = enableCrumb;
+    private JenkinsAuthInterceptor(JenkinsSettingDataComponent settingComponent) {
+        this.settingComponent = settingComponent;
     }
 
-    public static JenkinsAuthInterceptor getInstance(String jenkinsHost, String username, String password, boolean enableCrumb){
+    public static JenkinsAuthInterceptor getInstance(JenkinsSettingDataComponent settingComponent){
         if (jenkinsAuthInterceptor == null){
-            jenkinsAuthInterceptor = new JenkinsAuthInterceptor(jenkinsHost,username,password,enableCrumb);
+            jenkinsAuthInterceptor = new JenkinsAuthInterceptor(settingComponent);
         }
         return jenkinsAuthInterceptor;
     }
@@ -44,7 +41,7 @@ public class JenkinsAuthInterceptor implements Interceptor {
     public Response intercept(@NotNull Interceptor.Chain chain) throws IOException {
         Request request = chain.request();
         Request.Builder authorizationBuilder = request.newBuilder()
-                .addHeader("Authorization", AuthUtils.auth(username, password));
+                .addHeader("Authorization", AuthUtils.auth(settingComponent.getUsername(), settingComponent.getPassword()));
         if (enableCrumb){
             if (checkCrumbNull()){
                 crumb = getCrumb();
@@ -63,10 +60,10 @@ public class JenkinsAuthInterceptor implements Interceptor {
     }
 
     private Crumb getCrumb() throws IOException {
-        String url =  jenkinsHost + "/crumbIssuer/api/json";
+        String url =  settingComponent.getHost() + "/crumbIssuer/api/json";
         Request request = new Request.Builder()
                 .url(url)
-                .addHeader("Authorization",AuthUtils.auth(username,password))
+                .addHeader("Authorization",AuthUtils.auth(settingComponent.getUsername(),settingComponent.getPassword()))
                 .addHeader("Connection","keep-alive")
                 .build();
         Response response = new OkHttpClient.Builder()
@@ -80,7 +77,7 @@ public class JenkinsAuthInterceptor implements Interceptor {
             return JsonUtils.parseObject(string,Crumb.class);
         }else {
             response.close();
-            JenkinsNotificationComponent.notifyError(null,"Crumb Build Error", response.toString());
+            JenkinsNotificationComponent.notifyWarning(null,"Crumb build Error","You can try shutting down the crumb for jenkins tools config");
             return null;
         }
     }
