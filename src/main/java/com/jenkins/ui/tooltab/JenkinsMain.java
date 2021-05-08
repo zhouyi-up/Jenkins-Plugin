@@ -138,9 +138,7 @@ public class JenkinsMain extends SimpleToolWindowPanel {
      * 刷新树
      */
     private void refreshTree(){
-        rootNode.removeAllChildren();
         selectViewAnAction.removeChildAll();
-
         jenkinsComponent.jobList(data -> {
             refreshJobsList(data.getJobs());
             //刷新下拉
@@ -157,12 +155,13 @@ public class JenkinsMain extends SimpleToolWindowPanel {
      */
     private void refreshJobsList(List<JobListEntity.JobsBean> jobs) {
         rootNode.removeAllChildren();
-        //刷新job列表
-        jobs.forEach(bean -> {
-            addNode(bean.getName());
+
+        for (JobListEntity.JobsBean job : jobs) {
+            addNode(job.getName());
             jobMap.clear();
-            jobMap.put(bean.getName(), new JobEntity());
-        });
+            jobMap.put(job.getName(), new JobEntity());
+        }
+        //刷新job列表
         jTree.updateUI();
     }
 }
