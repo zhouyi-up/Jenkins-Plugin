@@ -7,12 +7,14 @@ import com.intellij.openapi.project.DumbAwareAction;
 import com.intellij.openapi.ui.ComboBox;
 import com.intellij.ui.SearchTextField;
 import com.intellij.ui.components.JBComboBoxLabel;
+import org.apache.commons.compress.utils.Lists;
 import org.jetbrains.annotations.NotNull;
 
 import javax.swing.*;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.event.ItemEvent;
+import java.util.List;
 
 /**
  * @author liujun
@@ -22,15 +24,23 @@ public class SelectViewAnAction extends DumbAwareAction implements CustomCompone
     JComboBox<String> viewComboBox;
     Listener listener;
 
+    List<String> itemList ;
+
     public SelectViewAnAction(Listener listener){
         addListener(listener);
+
+        itemList = Lists.newArrayList();
 
         viewComboBox = new ComboBox<>();
         viewComboBox.addItem("None");
         viewComboBox.addActionListener(e -> {
 
         });
-        viewComboBox.addItemListener(listener::actionPerformed);
+        viewComboBox.addItemListener(e -> {
+            if (e.getStateChange() == ItemEvent.SELECTED) {
+                listener.actionPerformed(e);
+            }
+        });
     }
 
     @Override
@@ -43,12 +53,16 @@ public class SelectViewAnAction extends DumbAwareAction implements CustomCompone
     }
 
     public void addItem(String item){
+        if (itemList.contains(item)) {
+            return;
+        }
+        itemList.add(item);
         viewComboBox.addItem(item);
     }
 
     public void removeChildAll(){
-
-        viewComboBox.removeAll();
+        viewComboBox.removeAllItems();
+        itemList.clear();
     }
 
     public String selectItem(){
