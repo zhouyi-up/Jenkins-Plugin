@@ -1,6 +1,7 @@
 package com.jenkins.client;
 
 import com.google.common.collect.Maps;
+import com.jenkins.compent.JenkinsSettingDataComponent;
 import com.jenkins.model.JobBuildInfo;
 import com.jenkins.model.JobEntity;
 import com.jenkins.model.JobListEntity;
@@ -16,24 +17,16 @@ import java.util.*;
  */
 public class JenkinsClientAsync {
 
-    private String username = "admin";
-    private String password = "admin";
-
-    private String jenkinsHost = "http://127.0.0.1:8080/";
-
     private OkHttpClient client = null;
+    JenkinsSettingDataComponent settingComponent;
 
-    private boolean enableCrumb;
+    public JenkinsClientAsync(){
 
-    public JenkinsClientAsync(String jenkinsHost,String username,String password, boolean enableCrumb){
-        this.username = username;
-        this.password = password;
-        this.jenkinsHost = jenkinsHost;
-        this.enableCrumb = enableCrumb;
+        settingComponent = JenkinsSettingDataComponent.getInstance();
 
         client = new OkHttpClient.Builder()
                 .addInterceptor(getHttpLoggingInterceptor())
-                .addInterceptor(JenkinsAuthInterceptor.getInstance(jenkinsHost, username,password,enableCrumb))
+                .addInterceptor(JenkinsAuthInterceptor.getInstance(settingComponent))
                 .cookieJar(JenkinsCookieJar.getInstance())
                 .build();
     }
@@ -50,7 +43,20 @@ public class JenkinsClientAsync {
      * @param callback
      */
     public void jobList(DefaultCallback<JobListEntity> callback){
-        String url = jenkinsHost + "/api/json";
+        String url = settingComponent.getHost() + "/api/json";
+
+        Request request = new Request.Builder()
+                .url(url)
+                .build();
+        client.newCall(request).enqueue(callback);
+    }
+
+    /**
+     * job 列表
+     * @param callback
+     */
+    public void jobList(String viewName, DefaultCallback<JobListEntity> callback){
+        String url = settingComponent.getHost() +"/view/"+viewName + "/api/json";
 
         Request request = new Request.Builder()
                 .url(url)
@@ -64,7 +70,7 @@ public class JenkinsClientAsync {
      * @param callback
      */
     public void jobInfo(String jobName, DefaultCallback<JobEntity> callback){
-        String url = jenkinsHost + "/job/"+jobName+"/api/json";
+        String url = settingComponent.getHost() + "/job/"+jobName+"/api/json";
         Request request = new Request.Builder()
                 .url(url)
                 .build();
@@ -77,7 +83,7 @@ public class JenkinsClientAsync {
      * @param callback
      */
     public void build(BuildParam buildParam, DefaultCallback<String> callback){
-        String url = jenkinsHost+"/job/"+buildParam.getJobName()+"/buildWithParameters";
+        String url = settingComponent.getHost() +"/job/"+buildParam.getJobName()+"/buildWithParameters";
 
         if (buildParam.getParam().isEmpty() ||
             buildParam.getParam().size() == 0
@@ -104,7 +110,7 @@ public class JenkinsClientAsync {
      * @param callback
      */
     public void build(String jobName,DefaultCallback<String> callback){
-        String url = jenkinsHost+"/job/"+jobName+"/build";
+        String url = settingComponent.getHost() +"/job/"+jobName+"/build";
         HashMap<String, Object> json = Maps.newHashMap();
 
         Request request = new Request.Builder()
@@ -116,7 +122,7 @@ public class JenkinsClientAsync {
     }
 
     public JobBuildInfo buildInfo(String jobName, int number) throws IOException {
-        String url = jenkinsHost + "/job/" + jobName + "/" + number + "/api/json";
+        String url = settingComponent.getHost() + "/job/" + jobName + "/" + number + "/api/json";
         Request request = new Request.Builder()
                 .url(url)
                 .build();

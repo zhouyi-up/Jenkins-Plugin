@@ -10,6 +10,7 @@
         <ol>
             <li>Parameter auto fill</li>
             <li>Support multiple configurations</li>
+            <li>Run Last Build</li>
         </ol>
     ]]></description>
     <!-- please see http://www.jetbrains.org/intellij/sdk/docs/basics/getting_started/plugin_compatibility.html
